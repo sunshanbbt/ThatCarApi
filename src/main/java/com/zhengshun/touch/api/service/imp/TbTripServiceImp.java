@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements TbTripService {
@@ -88,5 +90,10 @@ public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements T
             }
         }
         return false;
+    }
+
+    @Override
+    public List<TbTrip> getExpireTrip(Map<String, Object> params) {
+        return tbTripMapper.listSelective( params );
     }
 }
