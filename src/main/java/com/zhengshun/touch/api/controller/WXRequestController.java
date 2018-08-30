@@ -22,6 +22,11 @@ public class WXRequestController extends BaseController {
     @Resource
     private WXRequestService wxRequestService;
 
+    /**
+     * 获取微信openId
+     * @param code
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/wx/getOpenId.htm" )
     public void queryOpenId (
             @RequestParam( value = "code") String code)

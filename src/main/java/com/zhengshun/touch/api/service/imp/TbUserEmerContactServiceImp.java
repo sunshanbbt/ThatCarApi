@@ -8,6 +8,7 @@ import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.mapper.TbEmerContactMapper;
 import com.zhengshun.touch.api.mapper.TbUserMapper;
 import com.zhengshun.touch.api.service.TbUserEmerContactService;
+import com.zhengshun.touch.api.service.TbUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
     @Autowired
     private TbEmerContactMapper tbEmerContactMapper;
     @Autowired
-    private TbUserMapper tbUserMapper;
+    private TbUserService tbUserService;
 
 
     @Override
@@ -36,11 +37,7 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
 
     @Override
     public Boolean saveEmerContact( String data, String rdSessionKey) {
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
-
+        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
             com.alibaba.fastjson.JSONArray jsonArray = com.alibaba.fastjson.JSONArray.parseArray(data);
             if (jsonArray != null) {
@@ -49,12 +46,10 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
                     TbEmerContact tbEmerContact = new TbEmerContact();
                     tbEmerContact.setUserId( tbUser.getId() );
                     tbEmerContact.setPhone(jsonObject.getString("phone"));
-                    tbEmerContact.setWxNo(jsonObject.getString("wxNo"));
                     tbEmerContact.setCreateDate( new Date() );
                     tbEmerContactMapper.save( tbEmerContact );
                 }
                 return true;
-
             }
         }
         return false;
@@ -62,9 +57,7 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
 
     @Override
     public List<TbEmerContact> getListByUser(String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
             Map<String, Object> paramMap = new HashMap<>();
             paramMap.put("userId", tbUser.getId());
@@ -72,5 +65,17 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
             return list;
         }
         return null;
+    }
+
+    @Override
+    public Boolean deleteEmerContact(Long id, String rdSessionKey) {
+        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
+        if ( tbUser != null ) {
+           int res = tbEmerContactMapper.deleteById( id );
+           if ( res > 0 ) {
+               return true;
+           }
+        }
+        return false;
     }
 }

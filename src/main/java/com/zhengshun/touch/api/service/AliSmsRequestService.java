@@ -1,12 +1,11 @@
 package com.zhengshun.touch.api.service;
 
 
-import java.util.Map;
 
 public interface AliSmsRequestService {
 
 
-    Map<String, String> sendCode(String phone);
+    Boolean sendShortMessage( String phone, String code, String messageTempletCode, String type );
 
-
+    Boolean sendShortMessage( String mobile, String content, String type );
 }

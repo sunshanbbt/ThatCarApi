@@ -31,12 +31,17 @@ public class TbEmerContactController extends BaseController {
     @Resource
     private TbUserEmerContactService tbUserEmerContactService;
 
+    /**
+     * 保存联系人
+     * @param data
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/user/emer/save.htm" )
     public void saveEmer (
-            @RequestParam( value = "data") String data,
-                @RequestParam( value = "rdSessionKey") String rdSessionKey)
+            @RequestParam( value = "data") String data)
             throws Exception {
-        logger.info( "【/api/user/emer/save.htm】【inputs】 data = " + data + ", rdSessionKey = " + rdSessionKey);
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/emer/save.htm】 【inputs】 rdSessionKey = " + rdSessionKey + "data = " + data);
         if (tbUserEmerContactService.saveEmerContact( data, rdSessionKey)){
             logger.info("【/api/user/emer/save.htm】【outputs】 操作成功");
             ServletUtils.writeToResponse(response, BaseResponse.success());
@@ -44,18 +49,17 @@ public class TbEmerContactController extends BaseController {
             logger.info("【/api/user/emer/save.htm】【outputs】 操作失败");
             ServletUtils.writeToResponse( response, BaseResponse.fail() );
         }
-
-
     }
 
+    /**
+     * 获取联系人
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/user/emer/get.htm" )
-    public void getTrip (
-            @RequestParam( value = "rdSessionKey") String rdSessionKey)
-            throws Exception {
-        logger.info( "【/api/user/emer/get.htm】【inputs】  " );
-
+    public void getEmer () throws Exception {
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/emer/save.htm】 【inputs】 rdSessionKey = " + rdSessionKey );
         List<TbEmerContact> tbEmerContacts = tbUserEmerContactService.getListByUser( rdSessionKey );
-
         Map<String, Object> retMap = new HashMap<>();
 
         retMap.put( Constant.RESPONSE_DATA, tbEmerContacts );
@@ -64,9 +68,25 @@ public class TbEmerContactController extends BaseController {
         logger.info( "【/api/user/emer/get.htm】【outputs】 " + ConvertUtils.convert( retMap ) );
         ServletUtils.writeToResponse( response, retMap );
 
-
     }
 
 
-
+    /**
+     * 删除联系人
+     * @throws Exception
+     */
+    @RequestMapping( value = "/api/user/emer/delete.htm" )
+    public void deleteEmer (
+            @RequestParam( value = "id") Long id)
+            throws Exception {
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/emer/delete.htm】 【inputs】 rdSessionKey = " + rdSessionKey + "id = " + id);
+        if (tbUserEmerContactService.deleteEmerContact( id, rdSessionKey)){
+            logger.info("【/api/user/emer/delete.htm】【outputs】 操作成功");
+            ServletUtils.writeToResponse(response, BaseResponse.success());
+        } else {
+            logger.info("【/api/user/emer/delete.htm】【outputs】 操作失败");
+            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+        }
+    }
 }

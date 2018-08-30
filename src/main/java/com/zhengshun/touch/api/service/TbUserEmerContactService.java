@@ -14,5 +14,7 @@ public interface TbUserEmerContactService extends BaseService<TbEmerContact, Lon
 
     List<TbEmerContact> getListByUser(String rdSessionKey);
 
+    Boolean deleteEmerContact(Long id, String rdSessionKey);
+
 //    Boolean updateEmerContact(Long id, Integer d, String rdSessionKey);
 }

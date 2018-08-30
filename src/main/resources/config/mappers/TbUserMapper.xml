@@ -216,6 +216,17 @@
         from tb_user
           <include refid="searchBy"/>
     </select>
+    <update id="updateUnlockPwd" >
+        UPDATE tb_user
+        SET unlock_pwd = #{unlockPwd, jdbcType=VARCHAR}
+        WHERE id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <update id="updateRiskPwd">
+        UPDATE tb_user
+        SET risk_pwd = #{riskPwd, jdbcType=VARCHAR}
+        WHERE id = #{id, jdbcType=BIGINT}
+    </update>
     <delete id="delete" parameterType="java.lang.Long">
         <!--
           WARNING - @mbg.generated

@@ -10,4 +10,5 @@ public interface TbTripMapper extends BaseMapper<TbTrip, Long> {
 
     TbTrip findLastTrip( @Param("userId") Long userId );
 
+    int updateScheduleStatus( @Param("id") Long id, @Param("scheduleStatus") Integer scheduleStatus);
 }

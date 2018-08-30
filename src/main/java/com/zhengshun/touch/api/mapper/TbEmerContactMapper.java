@@ -9,5 +9,5 @@ import org.apache.ibatis.annotations.Param;
 @RDBatisDao
 public interface TbEmerContactMapper extends BaseMapper<TbEmerContact, Long> {
 
-
+    int deleteById( @Param("id") Long id );
 }

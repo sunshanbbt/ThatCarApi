@@ -28,15 +28,22 @@ public class TbTripController extends BaseController {
     @Resource
     private TbTripService tbTripService;
 
+    /**
+     * 保存行程信息
+     * @param estimateDate
+     * @param plateNo
+     * @param taxiApp
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/user/saveTrip.htm" )
     public void saveUser (
             @RequestParam( value = "estimateDate") Date estimateDate,
             @RequestParam( value = "plateNo") String plateNo,
-            @RequestParam( value = "taxiApp") String taxiApp,
-                @RequestParam( value = "rdSessionKey") String rdSessionKey)
+            @RequestParam( value = "taxiApp") String taxiApp)
             throws Exception {
-        logger.info( "【/api/user/saveTrip.htm】【inputs】 estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp
-         + ", rdSessionKey = " + rdSessionKey);
+        logger.info( "【/api/user/saveTrip.htm】【inputs】 estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp);
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/saveTrip.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
         if (tbTripService.saveTrip( request, estimateDate, plateNo, taxiApp, rdSessionKey)){
             logger.info("【/api/user/saveTrip.htm】【outputs】 操作成功");
             ServletUtils.writeToResponse(response, BaseResponse.success());
@@ -48,12 +55,14 @@ public class TbTripController extends BaseController {
 
     }
 
+    /**
+     * 获取行程信息
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/user/getTrip.htm" )
-    public void getTrip (
-            @RequestParam( value = "rdSessionKey") String rdSessionKey)
-            throws Exception {
-        logger.info( "【/api/user/getTrip.htm】【inputs】  " );
-
+    public void getTrip ()throws Exception {
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/getTrip.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
         TbTrip tbTrip = tbTripService.getLastTrip( rdSessionKey );
 
         Map<String, Object> retMap = new HashMap<>();
@@ -67,14 +76,20 @@ public class TbTripController extends BaseController {
 
     }
 
+    /**
+     * 修改行程状态
+     * @param id
+     * @param scheduleStatus
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/user/trip/updateStatus.htm" )
     public void updateStatus (
             @RequestParam( value = "id") Long id,
-            @RequestParam( value = "scheduleStatus") Integer scheduleStatus,
-            @RequestParam( value = "rdSessionKey") String rdSessionKey )
+            @RequestParam( value = "scheduleStatus") Integer scheduleStatus )
             throws Exception {
-        logger.info( "【/api/user/trip/updateStatus.htm】【inputs】  " );
-
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/trip/updateStatus.htm】 【inputs】 rdSessionKey = " + rdSessionKey + ", id = " + id +
+                ", scheduleStatus = " + scheduleStatus);
         if (tbTripService.updateStatus( id, scheduleStatus, rdSessionKey )){
             logger.info("【/api/user/trip/updateStatus.htm】【outputs】 操作成功");
             ServletUtils.writeToResponse(response, BaseResponse.success());
@@ -87,15 +102,23 @@ public class TbTripController extends BaseController {
 
     }
 
+    /**
+     * 修改行程信息
+     * @param id
+     * @param estimateDate
+     * @param plateNo
+     * @param taxiApp
+     * @throws Exception
+     */
     @RequestMapping( value = "/api/user/updateTrip.htm" )
     public void updateTrip (
             @RequestParam( value = "id") Long id,
             @RequestParam( value = "estimateDate") Date estimateDate,
             @RequestParam( value = "plateNo") String plateNo,
-            @RequestParam( value = "taxiApp") String taxiApp,
-            @RequestParam( value = "rdSessionKey") String rdSessionKey)
+            @RequestParam( value = "taxiApp") String taxiApp)
             throws Exception {
-        logger.info( "【/api/user/updateTrip.htm】【inputs】 id = " + id  + " + estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp
+        String rdSessionKey = request.getHeader("rdSessionKey");
+        logger.info("【/api/user/updateTrip.htm】 【inputs】 id = " + id  + " + estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp
                 + ", rdSessionKey = " + rdSessionKey);
         if (tbTripService.updateTrip( id, estimateDate, plateNo, taxiApp, rdSessionKey)){
             logger.info("【/api/user/updateTrip.htm】【outputs】 操作成功");
@@ -104,8 +127,6 @@ public class TbTripController extends BaseController {
             logger.info("【/api/user/updateTrip.htm】【outputs】 操作失败");
             ServletUtils.writeToResponse( response, BaseResponse.fail() );
         }
-
-
     }
 
 }

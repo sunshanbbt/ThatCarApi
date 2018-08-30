@@ -39,40 +39,25 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
         tbUser1.setCountry( country );
         tbUser1.setGender( gender );
         tbUser1.setLanguage( language );
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
-            logger.info("【TbUserServiceImp】【saveUser】 该用户已创建session信息，更新用户详细信息....");
             tbUser1.setId( tbUser.getId() );
             int res = tbUserMapper.update( tbUser1 );
             if ( res > 0 ) {
                 logger.info("【TbUserServiceImp】【saveUser】 该用户已创建session信息，更新用户详细信息，更新成功 userId = " + tbUser.getId());
-            } else {
-                logger.info("【TbUserServiceImp】【saveUser】 该用户已创建session信息，更新用户详细信息，更新失败 userId = " + tbUser.getId());
-                return false;
+                return true;
             }
-        } else {
-            logger.info("【TbUserServiceImp】【saveUser】 该用户未创建session信息，请先创建session信息");
-            return false;
         }
-        return true;
+        return false;
+
     }
 
 
     @Override
     public Boolean updateUnlockPwd(HttpServletRequest request, String unlockPwd, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
-            TbUser tbUser1 = new TbUser();
-            tbUser1.setId( tbUser.getId() );
-            tbUser1.setUnlockPwd(PasswordUtil.generate(unlockPwd) );
-            int res = tbUserMapper.update( tbUser1 );
-
+            int res = tbUserMapper.updateUnlockPwd( tbUser.getId(), PasswordUtil.generate(unlockPwd) );
             if ( res > 0 ){
                 return true;
             }
@@ -82,28 +67,19 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
 
     @Override
     public Boolean updateRiskPwd(HttpServletRequest request, String riskPwd, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
-            TbUser tbUser1 = new TbUser();
-            tbUser1.setId( tbUser.getId() );
-            tbUser1.setRiskPwd(PasswordUtil.generate(riskPwd) );
-            int res = tbUserMapper.update( tbUser1 );
+            int res = tbUserMapper.updateRiskPwd( tbUser.getId(), PasswordUtil.generate(riskPwd) );
             if ( res > 0 ){
                 return true;
             }
-
         }
         return false;
     }
 
     @Override
     public Boolean verifyPwd(HttpServletRequest request, String pwd, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
             if ( PasswordUtil.verify( pwd , tbUser.getUnlockPwd() )) {
                 return true;
@@ -115,5 +91,27 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
         return false;
     }
 
+    @Override
+    public Boolean updateInfo(String wxNo, String realName, String phone, String rdSessionKey) {
+        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
+        if ( tbUser != null ) {
+            TbUser tbUser1 = new TbUser();
+            tbUser1.setWxNo( wxNo );
+            tbUser1.setRealName( realName );
+            tbUser1.setPhone( phone );
+            int res = tbUserMapper.update( tbUser1 );
+            if ( res > 0 ) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    @Override
+    public TbUser getUserByRdSessionKey(String rdSessionKey) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("rdSessionKey", rdSessionKey );
+        TbUser tbUser = tbUserMapper.findSelective(params);
+        return tbUser;
+    }
 }

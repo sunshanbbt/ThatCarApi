@@ -37,7 +37,7 @@ public class WxRequestServiceImp  implements WXRequestService {
         params.put("js_code", code );
         params.put("grant_type", "authorization_code");
         logger.info("【WxRequestServiceImp】【getOpenId】 调用微信获取OPENID传参 ： " + JSONObject.toJSON(params));
-        String result = HttpsUtil.postClient("https://api.weixin.qq.com/sns/jscode2session", params);
+        String result = HttpsUtil.postClient(Global.getValue("car_get_open_url"), params);
         logger.info("【WxRequestServiceImp】【getOpenId】 微信获取OPENID结果 ： " + JSONObject.toJSON(result));
         params.clear();
         JSONObject jsonObject = JSONObject.parseObject( result );

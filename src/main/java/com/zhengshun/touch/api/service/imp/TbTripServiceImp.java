@@ -5,7 +5,6 @@ import com.zhengshun.touch.api.common.service.impl.BaseServiceImpl;
 import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.mapper.TbTripMapper;
-import com.zhengshun.touch.api.mapper.TbUserMapper;
 import com.zhengshun.touch.api.service.TbTripService;
 import com.zhengshun.touch.api.service.TbUserService;
 import org.slf4j.Logger;
@@ -15,8 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 @Service
 public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements TbTripService {
@@ -25,8 +22,7 @@ public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements T
     @Autowired
     private TbTripMapper tbTripMapper;
     @Autowired
-    private TbUserMapper tbUserMapper;
-
+    private TbUserService tbUserService;
 
     @Override
     public BaseMapper<TbTrip, Long> getMapper() {
@@ -42,15 +38,9 @@ public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements T
         tbTrip.setTaxiApp( taxiApp );
         tbTrip.setScheduleStatus( 1 );
         tbTrip.setCreateDate( new Date() );
-
-
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
             tbTrip.setUserId( tbUser.getId() );
-
             int res = tbTripMapper.save( tbTrip );
             if ( res > 0 ) {
                return true;
@@ -63,10 +53,7 @@ public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements T
 
     @Override
     public TbTrip getLastTrip(String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser =  tbUserService.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
             TbTrip tbTrip = tbTripMapper.findLastTrip( tbUser.getId() );
             return tbTrip;
@@ -76,16 +63,9 @@ public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements T
 
     @Override
     public Boolean updateStatus(Long id, Integer scheduleStatus, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser =  tbUserService.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
-            TbTrip tbTrip = new TbTrip();
-            tbTrip.setId( id );
-            tbTrip.setScheduleStatus( scheduleStatus );
-
-            int res = tbTripMapper.update( tbTrip );
+            int res = tbTripMapper.updateScheduleStatus( id, scheduleStatus );
             if ( res > 0 ) {
                 return true;
             }
@@ -95,17 +75,13 @@ public class TbTripServiceImp extends BaseServiceImpl<TbTrip, Long> implements T
 
     @Override
     public Boolean updateTrip(Long id, Date estimateDate, String plateNo, String taxiApp, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
+        TbUser tbUser =  tbUserService.getUserByRdSessionKey( rdSessionKey );
         if ( tbUser != null ) {
             TbTrip tbTrip = new TbTrip();
             tbTrip.setId( id );
             tbTrip.setEstimateDate( estimateDate );
             tbTrip.setPlateNo( plateNo );
             tbTrip.setTaxiApp( taxiApp );
-
             int res = tbTripMapper.update( tbTrip );
             if ( res > 0 ) {
                 return true;
