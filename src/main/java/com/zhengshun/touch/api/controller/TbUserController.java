@@ -83,17 +83,17 @@ public class TbUserController extends BaseController {
     }
 
 
-    @RequestMapping( value = "/api/user/verify/unlockPwd.htm" )
+    @RequestMapping( value = "/api/user/verify/pwd.htm" )
     public void verifyUnlockPwd (
-            @RequestParam( value = "unlockPwd") String unlockPwd,
+            @RequestParam( value = "pwd") String pwd,
             @RequestParam( value = "rdSessionKey") String rdSessionKey)
             throws Exception {
-        logger.info( "【/api/user/verify/unlockPwd.htm】【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.verifyUnlockPwd( request, unlockPwd, rdSessionKey)){
-            logger.info("【/api/user/verify/unlockPwd.htm】【outputs】 操作成功");
+        logger.info( "【/api/user/verify/pwd.htm】【inputs】 rdSessionKey = " + rdSessionKey);
+        if (tbUserService.verifyPwd( request, pwd, rdSessionKey)){
+            logger.info("【/api/user/verify/pwd.htm】【outputs】 操作成功");
             ServletUtils.writeToResponse(response, BaseResponse.success());
         } else {
-            logger.info("【/api/user/verify/unlockPwd.htm】【outputs】 操作失败");
+            logger.info("【/api/user/verify/pwd.htm】【outputs】 操作失败");
             ServletUtils.writeToResponse( response, BaseResponse.fail() );
         }
 
@@ -116,21 +116,6 @@ public class TbUserController extends BaseController {
 
     }
 
-    @RequestMapping( value = "/api/user/verify/riskPwd.htm" )
-    public void verifyRickPwd (
-            @RequestParam( value = "riskPwd") String riskPwd,
-            @RequestParam( value = "rdSessionKey") String rdSessionKey)
-            throws Exception {
-        logger.info( "【/api/user/verify/riskPwd.htm】【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.verifyRiskPwd( request, riskPwd, rdSessionKey)){
-            logger.info("【/api/user/verify/riskPwd.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
-        } else {
-            logger.info("【/api/user/verify/riskPwd.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
-        }
 
-
-    }
 
 }

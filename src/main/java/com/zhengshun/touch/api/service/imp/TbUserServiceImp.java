@@ -91,56 +91,29 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
             tbUser1.setId( tbUser.getId() );
             tbUser1.setRiskPwd(PasswordUtil.generate(riskPwd) );
             int res = tbUserMapper.update( tbUser1 );
-
             if ( res > 0 ){
                 return true;
             }
+
         }
         return false;
     }
 
     @Override
-    public Boolean verifyUnlockPwd(HttpServletRequest request, String unlockPwd, String rdSessionKey) {
+    public Boolean verifyPwd(HttpServletRequest request, String pwd, String rdSessionKey) {
         Map<String, Object> params = new HashMap<>();
         params.put("rdSessionKey", rdSessionKey );
         TbUser tbUser = tbUserMapper.findSelective(params);
         if ( tbUser != null ) {
-            if ( PasswordUtil.verify( unlockPwd , tbUser.getUnlockPwd() )) {
+            if ( PasswordUtil.verify( pwd , tbUser.getUnlockPwd() )) {
+                return true;
+            }
+            if ( PasswordUtil.verify( pwd, tbUser.getRiskPwd())) {
                 return true;
             }
         }
         return false;
     }
 
-    @Override
-    public Boolean verifyRiskPwd(HttpServletRequest request, String riskPwd, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
-        if ( tbUser != null ) {
-            if ( PasswordUtil.verify( riskPwd , tbUser.getRiskPwd() )) {
-                return true;
-            }
-        }
-        return false;
-    }
 
-    @Override
-    public Boolean updateInfo(String wxNo, String realName, String rdSessionKey) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("rdSessionKey", rdSessionKey );
-        TbUser tbUser = tbUserMapper.findSelective(params);
-        if ( tbUser != null ) {
-            TbUser tbUser1 = new TbUser();
-            tbUser1.setId( tbUser.getId() );
-            tbUser1.setRealName( realName );
-            tbUser1.setWxNo( wxNo );
-            int res = tbUserMapper.update(tbUser1);
-            if ( res > 0 ) {
-                return true;
-            }
-
-        }
-        return false;
-    }
 }
