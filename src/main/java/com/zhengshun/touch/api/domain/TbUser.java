@@ -99,6 +99,10 @@ public class TbUser implements Serializable{
 
     private String riskPwd;
 
+    private String wxNo;
+
+    private String realName;
+
     public Long getId() {
         return id;
     }
@@ -249,5 +253,21 @@ public class TbUser implements Serializable{
 
     public void setDeleteFlag(Integer deleteFlag) {
         this.deleteFlag = deleteFlag;
+    }
+
+    public String getWxNo() {
+        return wxNo;
+    }
+
+    public void setWxNo(String wxNo) {
+        this.wxNo = wxNo;
+    }
+
+    public String getRealName() {
+        return realName;
+    }
+
+    public void setRealName(String realName) {
+        this.realName = realName;
     }
 }

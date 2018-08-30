@@ -18,4 +18,6 @@ public interface TbUserService extends BaseService<TbUser, Long> {
     Boolean verifyUnlockPwd(HttpServletRequest request, String unlockPwd, String rdSessionKey);
 
     Boolean verifyRiskPwd(HttpServletRequest request, String rickPwd, String rdSessionKey);
+
+    Boolean updateInfo(String wxNo, String realName, String rdSessionKey);
 }

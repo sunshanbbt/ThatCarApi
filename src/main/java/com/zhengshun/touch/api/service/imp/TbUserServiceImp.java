@@ -124,4 +124,23 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
         }
         return false;
     }
+
+    @Override
+    public Boolean updateInfo(String wxNo, String realName, String rdSessionKey) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("rdSessionKey", rdSessionKey );
+        TbUser tbUser = tbUserMapper.findSelective(params);
+        if ( tbUser != null ) {
+            TbUser tbUser1 = new TbUser();
+            tbUser1.setId( tbUser.getId() );
+            tbUser1.setRealName( realName );
+            tbUser1.setWxNo( wxNo );
+            int res = tbUserMapper.update(tbUser1);
+            if ( res > 0 ) {
+                return true;
+            }
+
+        }
+        return false;
+    }
 }

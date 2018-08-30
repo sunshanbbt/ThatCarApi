@@ -16,7 +16,7 @@ import javax.annotation.Resource;
 public class TbUserController extends BaseController {
 
 
-    public static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    public static final Logger logger = LoggerFactory.getLogger(TbUserController.class);
 
     @Resource
     private TbUserService tbUserService;
@@ -40,6 +40,25 @@ public class TbUserController extends BaseController {
             ServletUtils.writeToResponse(response, BaseResponse.success());
         } else {
             logger.info("【/api/user/saveUser.htm】【outputs】 操作失败");
+            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+        }
+
+
+    }
+
+    @RequestMapping( value = "/api/user/update/info.htm" )
+    public void updateInfo (
+            @RequestParam( value = "wxNo") String wxNo,
+            @RequestParam( value = "realName") String realName,
+            @RequestParam( value = "rdSessionKey") String rdSessionKey)
+            throws Exception {
+        logger.info( "【/api/user/update/saveUserName.htm】【inputs】 wxNo = " + wxNo + ", realName = " + realName + ", " +
+                "rdSessionKey = " + rdSessionKey);
+        if (tbUserService.updateInfo( wxNo, realName,rdSessionKey)){
+            logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作成功");
+            ServletUtils.writeToResponse(response, BaseResponse.success());
+        } else {
+            logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作失败");
             ServletUtils.writeToResponse( response, BaseResponse.fail() );
         }
 
