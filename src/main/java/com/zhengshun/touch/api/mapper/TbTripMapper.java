@@ -5,10 +5,14 @@ import com.zhengshun.touch.api.common.mapper.RDBatisDao;
 import com.zhengshun.touch.api.domain.TbTrip;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @RDBatisDao
 public interface TbTripMapper extends BaseMapper<TbTrip, Long> {
 
     TbTrip findLastTrip( @Param("userId") Long userId );
 
     int updateScheduleStatus( @Param("id") Long id, @Param("scheduleStatus") Integer scheduleStatus);
+
+    List<TbTrip> getEarlyWarnTrip();
 }

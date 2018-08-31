@@ -3,6 +3,7 @@ package com.zhengshun.touch.api.controller;
 import com.zhengshun.touch.api.common.BaseResponse;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.web.controller.BaseController;
+import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.service.TbUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,18 +45,21 @@ public class TbUserController extends BaseController {
             throws Exception {
         logger.info( "【/api/user/saveUser.htm】【inputs】 avatarUrl = " + avatarUrl + ", city = " + city + ", country = " + country + ", gender = " + gender + ", language = " + language
          + ", nickName = " + nickName  + ", province = " + province);
-        String rdSessionKey = request.getHeader("rdSessionKey");
-        logger.info("【/api/user/saveUser.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.saveUser( request, avatarUrl, city, country, gender, language, nickName, rdSessionKey,
-                province )){
-            logger.info("【/api/user/saveUser.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            if (tbUserService.saveUser(request, avatarUrl, city, country, gender, language, nickName, tbUser.getId(),
+                    province)) {
+                logger.info("【/api/user/saveUser.htm】【outputs】 操作成功");
+                ServletUtils.writeToResponse(response, BaseResponse.success());
+            } else {
+                logger.info("【/api/user/saveUser.htm】【outputs】 操作失败");
+                ServletUtils.writeToResponse(response, BaseResponse.fail());
+            }
+
         } else {
-            logger.info("【/api/user/saveUser.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+            logger.info("【/api/user/saveUser.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
-
-
     }
 
     /**
@@ -72,14 +76,18 @@ public class TbUserController extends BaseController {
             throws Exception {
         logger.info( "【/api/user/update/saveUserName.htm】【inputs】 wxNo = " + wxNo + ", realName = " + realName + ", " +
                 "phone = " + phone);
-        String rdSessionKey = request.getHeader("rdSessionKey");
-        logger.info("【/api/user/update/saveUserName.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.updateInfo( wxNo, realName,phone,rdSessionKey)){
-            logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            if (tbUserService.updateInfo(wxNo, realName, phone, tbUser.getId())) {
+                logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作成功");
+                ServletUtils.writeToResponse(response, BaseResponse.success());
+            } else {
+                logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作失败");
+                ServletUtils.writeToResponse(response, BaseResponse.fail());
+            }
         } else {
-            logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+            logger.info("【/api/user/update/saveUserName.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
 
 
@@ -94,14 +102,19 @@ public class TbUserController extends BaseController {
     public void updateUnlockPwd (
             @RequestParam( value = "unlockPwd") String unlockPwd)
             throws Exception {
-        String rdSessionKey = request.getHeader("rdSessionKey");
-        logger.info("【/api/user/update/unlockPwd.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.updateUnlockPwd( request, unlockPwd, rdSessionKey)){
-            logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
+        logger.info("【/api/user/update/unlockPwd.htm】 【inputs】 ");
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            if (tbUserService.updateUnlockPwd(request, unlockPwd, tbUser.getId())) {
+                logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作成功");
+                ServletUtils.writeToResponse(response, BaseResponse.success());
+            } else {
+                logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作失败");
+                ServletUtils.writeToResponse(response, BaseResponse.fail());
+            }
         } else {
-            logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+            logger.info("【/api/user/update/unlockPwd.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
 
 
@@ -116,14 +129,19 @@ public class TbUserController extends BaseController {
     public void verifyUnlockPwd (
             @RequestParam( value = "pwd") String pwd)
             throws Exception {
-        String rdSessionKey = request.getHeader("rdSessionKey");
-        logger.info("【/api/user/verify/pwd.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.verifyPwd( request, pwd, rdSessionKey)){
-            logger.info("【/api/user/verify/pwd.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
+        logger.info("【/api/user/verify/pwd.htm】 【inputs】 ");
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            if (tbUserService.verifyPwd(request, pwd, tbUser )) {
+                logger.info("【/api/user/verify/pwd.htm】【outputs】 操作成功");
+                ServletUtils.writeToResponse(response, BaseResponse.success());
+            } else {
+                logger.info("【/api/user/verify/pwd.htm】【outputs】 操作失败");
+                ServletUtils.writeToResponse(response, BaseResponse.fail());
+            }
         } else {
-            logger.info("【/api/user/verify/pwd.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+            logger.info("【/api/user/verify/pwd.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
 
 
@@ -138,16 +156,20 @@ public class TbUserController extends BaseController {
     public void updateRickPwd (
             @RequestParam( value = "riskPwd") String riskPwd)
             throws Exception {
-        String rdSessionKey = request.getHeader("rdSessionKey");
-        logger.info("【/api/user/update/riskPwd.htm】 【inputs】 rdSessionKey = " + rdSessionKey);
-        if (tbUserService.updateRiskPwd( request, riskPwd, rdSessionKey)){
-            logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
+        logger.info("【/api/user/update/riskPwd.htm】 【inputs】 ");
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            if (tbUserService.updateRiskPwd(request, riskPwd, tbUser.getId())) {
+                logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作成功");
+                ServletUtils.writeToResponse(response, BaseResponse.success());
+            } else {
+                logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作失败");
+                ServletUtils.writeToResponse(response, BaseResponse.fail());
+            }
         } else {
-            logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+            logger.info("【/api/user/update/riskPwd.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
-
 
     }
 

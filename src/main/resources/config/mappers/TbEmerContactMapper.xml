@@ -107,6 +107,6 @@
         <include refid="searchBy"/>
     </select>
     <delete id="deleteById">
-        DELETE tb_user_emer_contact WHERE id = #{id, jdbcType=BIGINT}
+        DELETE FROM tb_user_emer_contact WHERE id = #{id, jdbcType=BIGINT}
     </delete>
 </mapper>

@@ -45,7 +45,14 @@ public class TbSms implements Serializable{
         this.smsType = smsType;
         this.platform = platform;
     }
-
+    public TbSms(String phone, Date sendTime, String content, String state, String smsType, String platform) {
+        this.phone = phone;
+        this.sendTime = sendTime;
+        this.content = content;
+        this.state = state;
+        this.smsType = smsType;
+        this.platform = platform;
+    }
     public TbSms() {
     }
 

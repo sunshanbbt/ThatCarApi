@@ -36,46 +36,41 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
 
 
     @Override
-    public Boolean saveEmerContact( String data, String rdSessionKey) {
-        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            com.alibaba.fastjson.JSONArray jsonArray = com.alibaba.fastjson.JSONArray.parseArray(data);
-            if (jsonArray != null) {
-                for (int i = 0; i < jsonArray.size(); i++) {
-                    JSONObject jsonObject = JSONObject.parseObject(jsonArray.getString(i));
-                    TbEmerContact tbEmerContact = new TbEmerContact();
-                    tbEmerContact.setUserId( tbUser.getId() );
-                    tbEmerContact.setPhone(jsonObject.getString("phone"));
-                    tbEmerContact.setCreateDate( new Date() );
-                    tbEmerContactMapper.save( tbEmerContact );
-                }
-                return true;
+    public Boolean saveEmerContact( String data, Long userId) {
+        com.alibaba.fastjson.JSONArray jsonArray = com.alibaba.fastjson.JSONArray.parseArray(data);
+        if (jsonArray != null) {
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject jsonObject = JSONObject.parseObject(jsonArray.getString(i));
+                TbEmerContact tbEmerContact = new TbEmerContact();
+                tbEmerContact.setUserId( userId );
+                tbEmerContact.setPhone(jsonObject.getString("phone"));
+                tbEmerContact.setCreateDate( new Date() );
+                tbEmerContactMapper.save( tbEmerContact );
             }
+            return true;
         }
+
         return false;
     }
 
+
     @Override
-    public List<TbEmerContact> getListByUser(String rdSessionKey) {
-        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            Map<String, Object> paramMap = new HashMap<>();
-            paramMap.put("userId", tbUser.getId());
-            List<TbEmerContact> list = tbEmerContactMapper.listSelective( paramMap );
-            return list;
-        }
-        return null;
+    public List<TbEmerContact> getListByUser(Long userId) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("userId", userId);
+        paramMap.put("deleteFlag", 0);
+        List<TbEmerContact> list = tbEmerContactMapper.listSelective( paramMap );
+        return list;
     }
 
     @Override
-    public Boolean deleteEmerContact(Long id, String rdSessionKey) {
-        TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-           int res = tbEmerContactMapper.deleteById( id );
-           if ( res > 0 ) {
-               return true;
-           }
-        }
+    public Boolean deleteEmerContact(Long id) {
+       int res = tbEmerContactMapper.deleteById( id );
+       if ( res > 0 ) {
+           return true;
+       }
         return false;
     }
+
+
 }

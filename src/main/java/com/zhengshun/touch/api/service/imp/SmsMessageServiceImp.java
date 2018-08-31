@@ -17,16 +17,20 @@ public class SmsMessageServiceImp implements SmsMessageService {
     private AliSmsRequestService aliSmsRequestService;
 
     @Override
-    public Boolean sendShortMessage(String phone, String code, String messageTemplet, String type, String channel) {
+    public Boolean sendShortMessage(String phone, String content, String code, String messageTemplet, String type,
+                                    String channel) {
 
         if ( channel.equals("10") ) { // 阿里云短信
-            return aliSmsRequestService.sendShortMessage(phone, code, messageTemplet, type );
+            return aliSmsRequestService.sendShortMessage(phone, content, code, messageTemplet, type );
         }
         return false;
     }
 
     @Override
-    public Boolean sendShortMessage(String phone, String content, String type, String channel) {
-        return null;
+    public Boolean sendShortMessage(String phone, String content, String messageTemplet, String type, String channel) {
+        if ( channel.equals("10") ) { // 阿里云短信
+            return aliSmsRequestService.sendShortMessage(phone, content, messageTemplet, type );
+        }
+        return false;
     }
 }

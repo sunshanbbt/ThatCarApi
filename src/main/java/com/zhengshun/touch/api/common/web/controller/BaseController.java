@@ -1,6 +1,7 @@
 package com.zhengshun.touch.api.common.web.controller;
 
 
+import com.zhengshun.touch.api.common.BaseResponse;
 import com.zhengshun.touch.api.common.context.Constant;
 import com.zhengshun.touch.api.common.exception.BussinessException;
 import com.zhengshun.touch.api.common.exception.ParamValideException;
@@ -9,6 +10,8 @@ import com.zhengshun.touch.api.common.exception.SimpleMessageException;
 import com.zhengshun.touch.api.common.model.URLConfig;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.util.ValidateCode;
+import com.zhengshun.touch.api.domain.TbUser;
+import com.zhengshun.touch.api.service.TbUserService;
 import com.zhengshun.touch.api.system.domain.SysRole;
 import com.zhengshun.touch.api.system.domain.SysUser;
 import com.zhengshun.touch.api.system.security.userdetails.UserFunction;
@@ -65,6 +68,8 @@ public abstract class BaseController extends AbstractController {
 	protected SysUserService sysUserService;
 	@Resource
     protected SysRoleService roleService;
+	@Resource
+	protected TbUserService tbUserService;
 
     @ModelAttribute  
     public void setReqAndRes(HttpServletRequest request, HttpServletResponse response){  
@@ -106,6 +111,15 @@ public abstract class BaseController extends AbstractController {
 	 * @param binder
 	 */
 	protected void initBinder(WebDataBinder binder) {
+	}
+
+	protected TbUser getUser(HttpServletRequest request) throws Exception{
+		String rdSessionKey = request.getHeader("rdSessionKey");
+		if(rdSessionKey != null){
+			TbUser tbUser = tbUserService.getUserByRdSessionKey( rdSessionKey );
+			return tbUser;
+		}
+		return null;
 	}
 
 	/**

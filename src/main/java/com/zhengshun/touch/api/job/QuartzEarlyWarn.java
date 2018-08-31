@@ -1,18 +1,13 @@
 package com.zhengshun.touch.api.job;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.zhengshun.touch.api.common.constans.TripScheduleStatusEnum;
 import com.zhengshun.touch.api.common.exception.ServiceException;
-import com.zhengshun.touch.api.domain.TbTrip;
-import com.zhengshun.touch.api.service.TbSmsService;
-import com.zhengshun.touch.api.service.TbTripService;
-import com.zhiliao.social.manage.domain.QuartzInfo;
-import com.zhiliao.social.manage.domain.QuartzLog;
-import com.zhiliao.social.manage.service.QuartzInfoService;
-import com.zhiliao.social.manage.service.QuartzLogService;
+import com.zhengshun.touch.api.domain.*;
+import com.zhengshun.touch.api.service.*;
 import org.apache.log4j.Logger;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
@@ -21,36 +16,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 import tool.util.BeanUtil;
-import tool.util.BigDecimalUtil;
-import tool.util.StringUtil;
-
-import com.alibaba.fastjson.JSONObject;
-import com.zhiliao.social.cl.domain.BankCard;
-import com.zhiliao.social.cl.domain.BorrowRepay;
-import com.zhiliao.social.cl.domain.PayLog;
-import com.zhiliao.social.cl.model.BorrowRepayLogModel;
-import com.zhiliao.social.cl.model.BorrowRepayModel;
-import com.zhiliao.social.cl.model.PayLogModel;
-import com.zhiliao.social.cl.model.pay.lianlian.QueryRepaymentModel;
-import com.zhiliao.social.cl.model.pay.lianlian.RepaymentModel;
-import com.zhiliao.social.cl.model.pay.lianlian.RiskItems;
-import com.zhiliao.social.cl.model.pay.lianlian.constant.LianLianConstant;
-import com.zhiliao.social.cl.model.pay.lianlian.util.LianLianHelper;
-import com.zhiliao.social.cl.service.BankCardService;
-import com.zhiliao.social.cl.service.BorrowRepayService;
-import com.zhiliao.social.cl.service.ClBorrowService;
-import com.zhiliao.social.cl.service.SoSmsService;
-import com.zhiliao.social.cl.service.PayLogService;
-import com.zhiliao.social.core.common.context.Global;
-import com.zhiliao.social.core.common.exception.ServiceException;
-import com.zhiliao.social.core.common.util.DateUtil;
-import com.zhiliao.social.core.common.util.OrderNoUtil;
-import com.zhiliao.social.core.domain.Borrow;
-import com.zhiliao.social.core.domain.User;
-import com.zhiliao.social.core.domain.UserBaseInfo;
-import com.zhiliao.social.core.model.BorrowModel;
-import com.zhiliao.social.core.service.SoUserService;
-import com.zhiliao.social.core.service.UserBaseInfoService;
+import tool.util.DateUtil;
 
 
 @Component
@@ -62,11 +28,13 @@ public class QuartzEarlyWarn implements Job {
 	private String earlyWarn() throws ServiceException {
 		logger.info("进入预警提醒任务...");
         TbTripService tbTripService = (TbTripService) BeanUtil.getBean("tbTripService");
+        TbUserService tbUserService = (TbUserService) BeanUtil.getBean("tbUserService");
+		TbUserEmerContactService tbUserEmerContactService = (TbUserEmerContactService) BeanUtil.getBean
+				("tbUserEmerContactService");
         TbSmsService tbSmsService = (TbSmsService) BeanUtil.getBean("tbSmsService");
 
         // 查询到期预警行程
-		Map<String, Object> params = new HashMap<>();
-        List<TbTrip> tbTripList = tbTripService.getExpireTrip( params );
+        List<TbTrip> tbTripList = tbTripService.getEarlyWarnTrip();
 
 		logger.info("预警提醒任务，待处理的提醒任务总数为：" + tbTripList.size());
 
@@ -77,17 +45,27 @@ public class QuartzEarlyWarn implements Job {
 		for (TbTrip tbTrip : tbTripList) {
 			logger.info("预警提醒任务，行程ID：" + tbTrip.getId() + "开始处理");
 			try {
-				// 查询用户、用户详情、借款及用户银行卡信息
+				//查询用户
+				TbUser tbUser = tbUserService.getUserById( tbTrip.getUserId() );
+				if ( tbUser != null ) {
+					// 查询用户的紧急联系人
+					List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser( tbTrip.getUserId() );
+					for ( TbEmerContact tbEmerContact : emerContactList ) {
+						Boolean falg = tbSmsService.sendOverTimeEarlyWarn( tbEmerContact.getPhone(), tbUser.getRealName
+								(), tbTrip.getTaxiApp(), tbTrip.getPlateNo() );
+						if (falg) {
+							tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
+							succeed++;
+							total++;
+						} else {
+							fail++;
+							total++;
+						}
+					}
+				} else {
+					logger.info("【QuartzEarlyWarn】【earlyWarn】 未找到该用户信息 userId = " + tbTrip.getUserId());
+				}
 
-				succeed++;
-				total++;
-
-//				//8104就是没有该还款计划的code
-//				if(repayment.getRet_code().equals("8104")){
-//					//重新上传还款计划
-//					logger.info("借款订单号："+borrow.getId()+"无扣款计划信息，重新生成还款计划");
-//					borrowRepayService.authSignApply(borrowRepay.getUserId());
-//				}
 			} catch (Exception e) {
 				fail++;
 				total++;
@@ -96,7 +74,7 @@ public class QuartzEarlyWarn implements Job {
 		}
 
 		quartzRemark = "处理总数"+total+"个，成功"+succeed+"个，失败"+fail+"个";
-		logger.info("代扣还款任务，执行完毕，" + quartzRemark);
+		logger.info("预警提醒任务，执行完毕，" + quartzRemark);
 		return quartzRemark;
 
 	}
@@ -106,7 +84,7 @@ public class QuartzEarlyWarn implements Job {
 		QuartzInfoService quartzInfoService = (QuartzInfoService) BeanUtil.getBean("quartzInfoService");
 		QuartzLogService quartzLogService = (QuartzLogService) BeanUtil.getBean("quartzLogService");
 		// 查询当前任务信息
-		QuartzInfo quartzInfo = quartzInfoService.findByCode("doRepayment");
+		QuartzInfo quartzInfo = quartzInfoService.findByCode("doEarlyWarn");
 		Map<String, Object> qiData = new HashMap<>();
 		qiData.put("id", quartzInfo.getId());
 
@@ -114,7 +92,7 @@ public class QuartzEarlyWarn implements Job {
 		quartzLog.setQuartzId(quartzInfo.getId());
 		quartzLog.setStartTime(DateUtil.getNow());
 		try {
-			String remark = repayment();
+			String remark = earlyWarn();
 			quartzLog.setTime(DateUtil.getNow().getTime() - quartzLog.getStartTime().getTime());
 			quartzLog.setResult("10");
 			quartzLog.setRemark(remark);
@@ -124,7 +102,7 @@ public class QuartzEarlyWarn implements Job {
 			qiData.put("fail", quartzInfo.getFail() + 1);
 			logger.error(e.getMessage(), e);
 		} finally {
-			logger.info("保存代扣还款定时任务执行记录");
+			logger.info("保存预警提醒任务定时任务执行记录");
 			quartzLogService.save(quartzLog);
 			quartzInfoService.update(qiData);
 		}

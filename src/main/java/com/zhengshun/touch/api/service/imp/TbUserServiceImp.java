@@ -1,10 +1,16 @@
 package com.zhengshun.touch.api.service.imp;
 
+import com.zhengshun.touch.api.common.constans.TripScheduleStatusEnum;
 import com.zhengshun.touch.api.common.mapper.BaseMapper;
 import com.zhengshun.touch.api.common.service.impl.BaseServiceImpl;
 import com.zhengshun.touch.api.common.util.PasswordUtil;
+import com.zhengshun.touch.api.domain.TbEmerContact;
+import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.mapper.TbUserMapper;
 import com.zhengshun.touch.api.domain.TbUser;
+import com.zhengshun.touch.api.service.TbSmsService;
+import com.zhengshun.touch.api.service.TbTripService;
+import com.zhengshun.touch.api.service.TbUserEmerContactService;
 import com.zhengshun.touch.api.service.TbUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,7 +26,12 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
     public static final Logger logger = LoggerFactory.getLogger(TbUserServiceImp.class);
     @Autowired
     private TbUserMapper tbUserMapper;
-
+    @Autowired
+    private TbSmsService tbSmsService;
+    @Autowired
+    private TbUserEmerContactService tbUserEmerContactService;
+    @Autowired
+    private TbTripService tbTripService;
 
     @Override
     public BaseMapper<TbUser, Long> getMapper() {
@@ -29,7 +40,7 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
 
     @Override
     public Boolean saveUser(HttpServletRequest request, String avatarUrl, String city, String country, Integer gender,
-                      String language, String nickName, String rdSessionKey, String province) {
+                      String language, String nickName, Long userId, String province) {
 
         TbUser tbUser1 = new TbUser();
         tbUser1.setAvatarUrl( avatarUrl );
@@ -39,14 +50,11 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
         tbUser1.setCountry( country );
         tbUser1.setGender( gender );
         tbUser1.setLanguage( language );
-        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            tbUser1.setId( tbUser.getId() );
-            int res = tbUserMapper.update( tbUser1 );
-            if ( res > 0 ) {
-                logger.info("【TbUserServiceImp】【saveUser】 该用户已创建session信息，更新用户详细信息，更新成功 userId = " + tbUser.getId());
-                return true;
-            }
+        tbUser1.setId( userId );
+        int res = tbUserMapper.update( tbUser1 );
+        if ( res > 0 ) {
+            logger.info("【TbUserServiceImp】【saveUser】更新用户详细信息，更新成功 userId = " + userId);
+            return true;
         }
         return false;
 
@@ -54,55 +62,56 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
 
 
     @Override
-    public Boolean updateUnlockPwd(HttpServletRequest request, String unlockPwd, String rdSessionKey) {
-        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            int res = tbUserMapper.updateUnlockPwd( tbUser.getId(), PasswordUtil.generate(unlockPwd) );
-            if ( res > 0 ){
-                return true;
-            }
+    public Boolean updateUnlockPwd(HttpServletRequest request, String unlockPwd,Long userId) {
+        int res = tbUserMapper.updateUnlockPwd( userId, PasswordUtil.generate(unlockPwd) );
+        if ( res > 0 ){
+            return true;
         }
         return false;
     }
 
     @Override
-    public Boolean updateRiskPwd(HttpServletRequest request, String riskPwd, String rdSessionKey) {
-        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            int res = tbUserMapper.updateRiskPwd( tbUser.getId(), PasswordUtil.generate(riskPwd) );
-            if ( res > 0 ){
-                return true;
-            }
+    public Boolean updateRiskPwd(HttpServletRequest request, String riskPwd, Long userId) {
+        int res = tbUserMapper.updateRiskPwd( userId, PasswordUtil.generate(riskPwd) );
+        if ( res > 0 ){
+            return true;
         }
         return false;
     }
 
     @Override
-    public Boolean verifyPwd(HttpServletRequest request, String pwd, String rdSessionKey) {
-        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            if ( PasswordUtil.verify( pwd , tbUser.getUnlockPwd() )) {
-                return true;
-            }
-            if ( PasswordUtil.verify( pwd, tbUser.getRiskPwd())) {
-                return true;
-            }
+    public Boolean verifyPwd(HttpServletRequest request, String pwd, TbUser tbUser) {
+        if ( PasswordUtil.verify( pwd , tbUser.getUnlockPwd() )) {
+            return true;
+        }
+        if ( PasswordUtil.verify( pwd, tbUser.getRiskPwd())) {
+                // 查询用户的紧急联系人
+                TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
+                if ( tbTrip != null ) {
+                    List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser( tbUser.getId() );
+                    for ( TbEmerContact tbEmerContact : emerContactList ) {
+                        Boolean falg = tbSmsService.sendAutoEarlyWarn( tbEmerContact.getPhone(), tbUser.getRealName
+                                (), tbTrip.getTaxiApp(), tbTrip.getPlateNo() );
+                        if (falg) {
+                            tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
+                        }
+                    }
+                }
+            return true;
         }
         return false;
     }
 
     @Override
-    public Boolean updateInfo(String wxNo, String realName, String phone, String rdSessionKey) {
-        TbUser tbUser = this.getUserByRdSessionKey( rdSessionKey );
-        if ( tbUser != null ) {
-            TbUser tbUser1 = new TbUser();
-            tbUser1.setWxNo( wxNo );
-            tbUser1.setRealName( realName );
-            tbUser1.setPhone( phone );
-            int res = tbUserMapper.update( tbUser1 );
-            if ( res > 0 ) {
-                return true;
-            }
+    public Boolean updateInfo(String wxNo, String realName, String phone, Long userId) {
+        TbUser tbUser1 = new TbUser();
+        tbUser1.setWxNo( wxNo );
+        tbUser1.setRealName( realName );
+        tbUser1.setPhone( phone );
+        tbUser1.setId( userId );
+        int res = tbUserMapper.update( tbUser1 );
+        if ( res > 0 ) {
+            return true;
         }
         return false;
     }
@@ -113,5 +122,10 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
         params.put("rdSessionKey", rdSessionKey );
         TbUser tbUser = tbUserMapper.findSelective(params);
         return tbUser;
+    }
+
+    @Override
+    public TbUser getUserById(Long id) {
+        return tbUserMapper.findByPrimary( id );
     }
 }
