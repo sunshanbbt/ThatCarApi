@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Service
+@Service("tbUserEmerContactService")
 public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, Long> implements TbUserEmerContactService {
 
     public static final Logger logger = LoggerFactory.getLogger(TbUserEmerContactServiceImp.class);
@@ -36,21 +36,29 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
 
 
     @Override
-    public Boolean saveEmerContact( String data, Long userId) {
+    public String saveEmerContact( String data, Long userId) {
         com.alibaba.fastjson.JSONArray jsonArray = com.alibaba.fastjson.JSONArray.parseArray(data);
         if (jsonArray != null) {
             for (int i = 0; i < jsonArray.size(); i++) {
                 JSONObject jsonObject = JSONObject.parseObject(jsonArray.getString(i));
+                String phone = jsonObject.getString("phone");
+                if ( i < jsonArray.size()-1 ) {
+                    JSONObject jsonObject1 = JSONObject.parseObject(jsonArray.getString(i + 1));
+                    String phone1 = jsonObject1.getString("phone");
+                    if (phone.equals(phone1)) {
+                        return "不可填写重复的联系人";
+                    }
+                }
                 TbEmerContact tbEmerContact = new TbEmerContact();
                 tbEmerContact.setUserId( userId );
                 tbEmerContact.setPhone(jsonObject.getString("phone"));
                 tbEmerContact.setCreateDate( new Date() );
                 tbEmerContactMapper.save( tbEmerContact );
             }
-            return true;
+            return "true";
         }
 
-        return false;
+        return "false";
     }
 
 

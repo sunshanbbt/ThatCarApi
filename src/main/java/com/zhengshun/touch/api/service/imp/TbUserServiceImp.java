@@ -20,7 +20,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
-@Service
+@Service("tbUserService")
 public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements TbUserService {
 
     public static final Logger logger = LoggerFactory.getLogger(TbUserServiceImp.class);
@@ -80,7 +80,7 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
     }
 
     @Override
-    public Boolean verifyPwd(HttpServletRequest request, String pwd, TbUser tbUser) {
+    public Boolean verifyPwd(String pwd, TbUser tbUser) {
         if ( PasswordUtil.verify( pwd , tbUser.getUnlockPwd() )) {
             return true;
         }
@@ -92,9 +92,9 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
                     for ( TbEmerContact tbEmerContact : emerContactList ) {
                         Boolean falg = tbSmsService.sendAutoEarlyWarn( tbEmerContact.getPhone(), tbUser.getRealName
                                 (), tbTrip.getTaxiApp(), tbTrip.getPlateNo() );
-                        if (falg) {
-                            tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
-                        }
+//                        if (falg) {
+////                            tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
+////                        }
                     }
                 }
             return true;

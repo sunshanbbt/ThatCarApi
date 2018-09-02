@@ -6,6 +6,7 @@
     <resultMap id="BaseResultMap" type="com.zhengshun.touch.api.domain.TbSms">
         <id column="id" property="id" jdbcType="INTEGER"/>
         <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="trip_id" property="tripId" jdbcType="BIGINT"/>
         <result column="send_time" property="sendTime" jdbcType="TIMESTAMP"/>
         <result column="content" property="content" jdbcType="VARCHAR"/>
         <result column="resp_time" property="respTime" jdbcType="TIMESTAMP"/>
@@ -20,7 +21,7 @@
 
     <!--基本的sql查询字段 公共引用...-->
     <sql id="Base_Column_List">
-        id,phone,send_time,content,resp_time,resp,sms_type,code,order_no,state,verify_time, platform
+        id,phone,trip_id,send_time,content,resp_time,resp,sms_type,code,order_no,state,verify_time, platform
     </sql>
 
     <!-- 基本的sql查询条件公共引用 -->
@@ -70,6 +71,7 @@
         insert into
             tb_sms(
                 phone,
+                trip_id,
                 send_time,
                 content,
                 resp_time,
@@ -82,6 +84,7 @@
                 platform
             ) values (
                 #{phone,jdbcType=VARCHAR},
+                #{tripId,jdbcType=BIGINT},
                 #{sendTime,jdbcType=TIMESTAMP},
                 #{content,jdbcType=VARCHAR},
                 #{respTime,jdbcType=TIMESTAMP},
@@ -219,5 +222,10 @@
         from tb_sms
         WHERE phone = #{phone,jdbcType=VARCHAR}
         ORDER BY send_time DESC LIMIT 0,1
+    </select>
+    <select id="selectByTripId" resultType="java.lang.Integer">
+        SELECT count(1)
+        from tb_sms
+        WHERE trip_id = #{tripId,jdbcType=BIGINT}
     </select>
 </mapper>

@@ -48,13 +48,18 @@ public class QuartzEarlyWarn implements Job {
 				//查询用户
 				TbUser tbUser = tbUserService.getUserById( tbTrip.getUserId() );
 				if ( tbUser != null ) {
+					Integer count = tbSmsService.selectByTripId( tbTrip.getId() );
+					if ( count > 0 ) {
+						logger.info("【QuartzEarlyWarn】【earlyWarn】 该用户已发过预警 userId = " + tbTrip.getUserId() + "， tripId = " + tbTrip.getId());
+						continue;
+					}
 					// 查询用户的紧急联系人
 					List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser( tbTrip.getUserId() );
 					for ( TbEmerContact tbEmerContact : emerContactList ) {
 						Boolean falg = tbSmsService.sendOverTimeEarlyWarn( tbEmerContact.getPhone(), tbUser.getRealName
 								(), tbTrip.getTaxiApp(), tbTrip.getPlateNo() );
 						if (falg) {
-							tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
+							tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code ,"0000000");
 							succeed++;
 							total++;
 						} else {

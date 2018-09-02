@@ -3,6 +3,8 @@ package com.zhengshun.touch.api.controller;
 import com.zhengshun.touch.api.common.BaseResponse;
 import com.zhengshun.touch.api.common.MsgUtils;
 import com.zhengshun.touch.api.common.context.Constant;
+import com.zhengshun.touch.api.common.context.Global;
+import com.zhengshun.touch.api.common.util.DateUtil;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.web.controller.BaseController;
 import com.zhengshun.touch.api.domain.TbTrip;
@@ -38,19 +40,28 @@ public class TbTripController extends BaseController {
      */
     @RequestMapping( value = "/api/user/saveTrip.htm" )
     public void saveUser (
-            @RequestParam( value = "estimateDate") Date estimateDate,
+            @RequestParam( value = "estimateDate") Integer estimateDate,
             @RequestParam( value = "plateNo") String plateNo,
-            @RequestParam( value = "taxiApp") String taxiApp)
+            @RequestParam( value = "taxiApp") String taxiApp,
+            @RequestParam( value = "gbs", required = false) String gbs)
             throws Exception {
-        logger.info( "【/api/user/saveTrip.htm】【inputs】 estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp);
+
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if (tbTripService.saveTrip(request, estimateDate, plateNo, taxiApp, tbUser.getId())) {
-                logger.info("【/api/user/saveTrip.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
+            logger.info( "【/api/user/saveTrip.htm】【inputs】 estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp + "， userId = " + tbUser.getId());
+            Integer count = tbTripService.getTripCount( tbUser.getId() );
+            if ( count < Global.getInt("trip_count")) {
+                Date estimate = DateUtil.dateAddMins(new Date(), estimateDate);
+                if (tbTripService.saveTrip(request, estimate, plateNo, taxiApp, tbUser.getId(), gbs)) {
+                    logger.info("【/api/user/saveTrip.htm】【outputs】 操作成功");
+                    ServletUtils.writeToResponse(response, BaseResponse.success());
+                } else {
+                    logger.info("【/api/user/saveTrip.htm】【outputs】 操作失败");
+                    ServletUtils.writeToResponse(response, BaseResponse.fail());
+                }
             } else {
-                logger.info("【/api/user/saveTrip.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail());
+                logger.info("【/api/user/saveTrip.htm】【outputs】 用户行程已达上限");
+                ServletUtils.writeToResponse(response, BaseResponse.fail("用户行程已达上限"));
             }
         } else {
             logger.info("【/api/user/saveTrip.htm】【outputs】 未找到用户");
@@ -70,13 +81,19 @@ public class TbTripController extends BaseController {
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
             TbTrip tbTrip = tbTripService.getLastTrip(tbUser.getId());
-            Map<String, Object> retMap = new HashMap<>();
+            if ( tbTrip != null ) {
+                tbTrip.setRemainMinutes(DateUtil.minuteBetween(new Date(), tbTrip.getEstimateDate()));
+                Map<String, Object> retMap = new HashMap<>();
 
-            retMap.put(Constant.RESPONSE_DATA, tbTrip);
-            retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
-            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
-            logger.info("【/api/user/getTrip.htm】【outputs】 " + ConvertUtils.convert(retMap));
-            ServletUtils.writeToResponse(response, retMap);
+                retMap.put(Constant.RESPONSE_DATA, tbTrip);
+                retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+                logger.info("【/api/user/getTrip.htm】【outputs】 " + ConvertUtils.convert(retMap));
+                ServletUtils.writeToResponse(response, retMap);
+            } else {
+                logger.info("【/api/user/getTrip.htm】【outputs】 ");
+                ServletUtils.writeToResponse(response, BaseResponse.fail("未找到行程"));
+            }
         } else {
             logger.info("【/api/user/getTrip.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());
@@ -93,18 +110,25 @@ public class TbTripController extends BaseController {
     @RequestMapping( value = "/api/user/trip/updateStatus.htm" )
     public void updateStatus (
             @RequestParam( value = "id") Long id,
-            @RequestParam( value = "scheduleStatus") Integer scheduleStatus )
+            @RequestParam( value = "scheduleStatus") Integer scheduleStatus,
+            @RequestParam( value = "gbs", required = false) String gbs)
             throws Exception {
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
             logger.info("【/api/user/trip/updateStatus.htm】 【inputs】  id = " + id +
                     ", scheduleStatus = " + scheduleStatus);
-            if (tbTripService.updateStatus(id, scheduleStatus)) {
-                logger.info("【/api/user/trip/updateStatus.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
+            TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
+            if ( tbTrip != null && DateUtil.minutesBetween(tbTrip.getCreateDate(), new Date()) > Global.getInt("trip_minutes")) {
+                if (tbTripService.updateStatus(id, scheduleStatus, gbs)) {
+                    logger.info("【/api/user/trip/updateStatus.htm】【outputs】 操作成功");
+                    ServletUtils.writeToResponse(response, BaseResponse.success());
+                } else {
+                    logger.info("【/api/user/trip/updateStatus.htm】【outputs】 操作失败");
+                    ServletUtils.writeToResponse(response, BaseResponse.fail());
+                }
             } else {
                 logger.info("【/api/user/trip/updateStatus.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail());
+                ServletUtils.writeToResponse(response, BaseResponse.fail("行程结束时间距开始时间太短"));
             }
         } else {
             logger.info("【/api/user/trip/updateStatus.htm】【outputs】 未找到用户");
@@ -119,28 +143,33 @@ public class TbTripController extends BaseController {
      * 修改行程信息
      * @param id
      * @param estimateDate
-     * @param plateNo
-     * @param taxiApp
      * @throws Exception
      */
     @RequestMapping( value = "/api/user/updateTrip.htm" )
     public void updateTrip (
             @RequestParam( value = "id") Long id,
-            @RequestParam( value = "estimateDate") Date estimateDate,
-            @RequestParam( value = "plateNo") String plateNo,
-            @RequestParam( value = "taxiApp") String taxiApp)
+            @RequestParam( value = "estimateDate") Integer estimateDate,
+            @RequestParam( value = "gbs", required = false) String gbs)
             throws Exception {
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            logger.info("【/api/user/updateTrip.htm】 【inputs】 id = " + id + " + estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp
+            logger.info("【/api/user/updateTrip.htm】 【inputs】 id = " + id + " + estimateDate = " + estimateDate
                    );
-            if (tbTripService.updateTrip(id, estimateDate, plateNo, taxiApp)) {
-                logger.info("【/api/user/updateTrip.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
+            TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
+            if ( tbTrip != null ) {
+                Date estimate = DateUtil.dateAddMins(tbTrip.getEstimateDate(), estimateDate);
+                if (tbTripService.updateTrip(id, estimate, gbs)) {
+                    logger.info("【/api/user/updateTrip.htm】【outputs】 操作成功");
+                    ServletUtils.writeToResponse(response, BaseResponse.success());
+                } else {
+                    logger.info("【/api/user/updateTrip.htm】【outputs】 操作失败");
+                    ServletUtils.writeToResponse(response, BaseResponse.fail());
+                }
             } else {
-                logger.info("【/api/user/updateTrip.htm】【outputs】 操作失败");
+                logger.info("【/api/user/updateTrip.htm】【outputs】 行程不存在 userId = " + tbUser.getId());
                 ServletUtils.writeToResponse(response, BaseResponse.fail());
             }
+
         } else {
             logger.info("【/api/user/updateTrip.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());

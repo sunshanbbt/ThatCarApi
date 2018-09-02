@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface TbUserEmerContactService extends BaseService<TbEmerContact, Long> {
 
-    Boolean saveEmerContact(String data,  Long userId);
+    String saveEmerContact(String data,  Long userId);
 
     List<TbEmerContact> getListByUser(Long userId);
 

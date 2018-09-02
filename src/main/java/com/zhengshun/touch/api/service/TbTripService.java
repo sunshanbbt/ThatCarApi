@@ -10,14 +10,16 @@ import java.util.Map;
 
 public interface TbTripService extends BaseService<TbTrip, Long> {
 
-    Boolean saveTrip(HttpServletRequest request, Date estimateDate, String plateNo, String taxiApp,Long userId);
+    Boolean saveTrip(HttpServletRequest request, Date estimateDate, String plateNo, String taxiApp,Long userId, String gbs);
 
 
-    Boolean updateTrip( Long id, Date estimateDate, String plateNo, String taxiApp);
+    Boolean updateTrip( Long id, Date estimateDate, String gbs);
 
     List<TbTrip> getEarlyWarnTrip();
 
-    Boolean updateStatus(Long id, Integer scheduleStatus);
+    Boolean updateStatus(Long id, Integer scheduleStatus, String gbs);
 
     TbTrip getLastTrip(Long userId);
+
+    Integer getTripCount(Long userId);
 }

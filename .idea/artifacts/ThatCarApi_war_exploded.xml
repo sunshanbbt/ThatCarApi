@@ -187,6 +187,9 @@
           <element id="library" level="project" name="Maven: redis.clients:jedis:2.8.1" />
           <element id="library" level="project" name="Maven: org.apache.commons:commons-pool2:2.4.2" />
           <element id="library" level="project" name="Maven: javax.servlet:javax.servlet-api:3.0.1" />
+          <element id="library" level="project" name="Maven: com.aliyun:aliyun-java-sdk-core:3.3.1" />
+          <element id="library" level="project" name="Maven: com.aliyun:aliyun-java-sdk-dysmsapi:1.0.0" />
+          <element id="library" level="project" name="Maven: org.quartz-scheduler:quartz:1.8.6" />
         </element>
       </element>
       <element id="javaee-facet-resources" facet="ThatCarApi/web/Web" />

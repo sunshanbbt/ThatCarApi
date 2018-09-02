@@ -35,4 +35,6 @@ public interface TbSmsService {
      * @return
      */
     Boolean sendAutoEarlyWarn(String phone, String name, String plateNo, String taxiApp);
+
+    Integer selectByTripId(Long tripId);
 }

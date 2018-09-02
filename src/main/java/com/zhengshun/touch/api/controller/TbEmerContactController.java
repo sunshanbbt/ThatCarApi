@@ -41,13 +41,18 @@ public class TbEmerContactController extends BaseController {
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
             logger.info("【/api/user/emer/save.htm】 【inputs】 data = " + data + ", userId = " + tbUser.getId());
-            if (tbUserEmerContactService.saveEmerContact(data, tbUser.getId())) {
+            String result = tbUserEmerContactService.saveEmerContact(data, tbUser.getId());
+            if ( result.equals("true") ) {
                 logger.info("【/api/user/emer/save.htm】【outputs】 操作成功");
                 ServletUtils.writeToResponse(response, BaseResponse.success());
-            } else {
+            } else if ( result.equals("false")) {
                 logger.info("【/api/user/emer/save.htm】【outputs】 操作失败");
                 ServletUtils.writeToResponse(response, BaseResponse.fail());
+            } else {
+                logger.info("【/api/user/emer/save.htm】【outputs】 "+result+"");
+                ServletUtils.writeToResponse(response, BaseResponse.fail( result ));
             }
+
         } else {
             logger.info("【/api/user/emer/save.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());

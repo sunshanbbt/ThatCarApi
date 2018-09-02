@@ -25,6 +25,8 @@ public class TbTrip implements Serializable{
 
     private Integer scheduleStatus;
 
+    private Integer remainMinutes;
+
     /**
      * Database Column Remarks:
      *   用户状态 0 停用 1 正常
@@ -129,5 +131,13 @@ public class TbTrip implements Serializable{
 
     public void setDeleteFlag(Integer deleteFlag) {
         this.deleteFlag = deleteFlag;
+    }
+
+    public Integer getRemainMinutes() {
+        return remainMinutes;
+    }
+
+    public void setRemainMinutes(Integer remainMinutes) {
+        this.remainMinutes = remainMinutes;
     }
 }

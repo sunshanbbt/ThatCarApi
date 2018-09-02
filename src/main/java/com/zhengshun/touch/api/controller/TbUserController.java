@@ -1,6 +1,7 @@
 package com.zhengshun.touch.api.controller;
 
 import com.zhengshun.touch.api.common.BaseResponse;
+import com.zhengshun.touch.api.common.util.PasswordUtil;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.web.controller.BaseController;
 import com.zhengshun.touch.api.domain.TbUser;
@@ -70,7 +71,7 @@ public class TbUserController extends BaseController {
      */
     @RequestMapping( value = "/api/user/update/info.htm" )
     public void updateInfo (
-            @RequestParam( value = "wxNo") String wxNo,
+            @RequestParam( value = "wxNo", required = false) String wxNo,
             @RequestParam( value = "realName") String realName,
             @RequestParam( value = "phone") String phone)
             throws Exception {
@@ -105,12 +106,17 @@ public class TbUserController extends BaseController {
         logger.info("【/api/user/update/unlockPwd.htm】 【inputs】 ");
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if (tbUserService.updateUnlockPwd(request, unlockPwd, tbUser.getId())) {
-                logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
-            } else {
+            if ( tbUser.getRiskPwd().equals( PasswordUtil.generate( unlockPwd ))) {
                 logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail());
+                ServletUtils.writeToResponse(response, BaseResponse.fail("解锁密码不能和风控密码重复"));
+            } else {
+                if (tbUserService.updateUnlockPwd(request, unlockPwd, tbUser.getId())) {
+                    logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作成功");
+                    ServletUtils.writeToResponse(response, BaseResponse.success());
+                } else {
+                    logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作失败");
+                    ServletUtils.writeToResponse(response, BaseResponse.fail());
+                }
             }
         } else {
             logger.info("【/api/user/update/unlockPwd.htm】【outputs】 未找到用户");
@@ -132,7 +138,7 @@ public class TbUserController extends BaseController {
         logger.info("【/api/user/verify/pwd.htm】 【inputs】 ");
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if (tbUserService.verifyPwd(request, pwd, tbUser )) {
+            if (tbUserService.verifyPwd(pwd, tbUser )) {
                 logger.info("【/api/user/verify/pwd.htm】【outputs】 操作成功");
                 ServletUtils.writeToResponse(response, BaseResponse.success());
             } else {
@@ -159,12 +165,17 @@ public class TbUserController extends BaseController {
         logger.info("【/api/user/update/riskPwd.htm】 【inputs】 ");
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if (tbUserService.updateRiskPwd(request, riskPwd, tbUser.getId())) {
-                logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
-            } else {
+            if ( tbUser.getUnlockPwd().equals(PasswordUtil.generate( riskPwd ))) {
                 logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail());
+                ServletUtils.writeToResponse(response, BaseResponse.fail("风控密码不能和解锁密码重复"));
+            } else {
+                if (tbUserService.updateRiskPwd(request, riskPwd, tbUser.getId())) {
+                    logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作成功");
+                    ServletUtils.writeToResponse(response, BaseResponse.success());
+                } else {
+                    logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作失败");
+                    ServletUtils.writeToResponse(response, BaseResponse.fail());
+                }
             }
         } else {
             logger.info("【/api/user/update/riskPwd.htm】【outputs】 未找到用户");

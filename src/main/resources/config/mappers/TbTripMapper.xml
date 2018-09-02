@@ -118,6 +118,12 @@
         FROM tb_trip
           <include refid="searchBy"/>
     </select>
+    <select id="findByPrimary" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM tb_trip
+        where id = #{id, jdbcType=BIGINT}
+    </select>
     <select id="findLastTrip" parameterType="java.lang.Long" resultMap="BaseResultMap">
         SELECT
         <include refid="Base_Column_List"/>
@@ -135,5 +141,11 @@
         <include refid="Base_Column_List"/>
         FROM tb_trip
         WHERE schedule_status = 1 AND <![CDATA[ estimate_date  <= now() ]]>
+    </select>
+    <select id="getTripCount" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        select
+        count(1)
+        from tb_trip
+        where user_id = #{userId, jdbcType=BIGINT} and DATE (create_date) = date_format(now(),'%y-%m-%d')
     </select>
 </mapper>

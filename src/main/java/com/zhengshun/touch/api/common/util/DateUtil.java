@@ -34,7 +34,7 @@ public class DateUtil extends tool.util.DateUtil{
 			long time1 = cal.getTimeInMillis();
 			cal.setTime(d2);
 			long time2 = cal.getTimeInMillis();
-			return Integer.parseInt(String.valueOf((time2 - time1) / 60000));
+			return Integer.parseInt(String.valueOf((time2 - time1) / 1000));
 		} catch (ParseException e) {
 			e.printStackTrace();
 		}

@@ -50,6 +50,7 @@ public class QuartzListener implements ServletContextListener,HttpSessionAttribu
 
 				// 循环添加任务
 				for (QuartzInfo quartzInfo : list) {
+					logger.info("加载定时任务---->" + quartzInfo.getClassName());
 					String clName = quartzInfo.getClassName();
 					Object cl = Class.forName(clName).newInstance();
 					QuartzManager.addJob(quartzInfo.getCode(), cl.getClass(),quartzInfo.getCycle());

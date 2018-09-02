@@ -18,7 +18,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
+@Service("tbSmsService")
 public class TbSmsServiceImp implements TbSmsService {
 
 
@@ -105,5 +105,11 @@ public class TbSmsServiceImp implements TbSmsService {
         }
         logger.info("【AliSmsRequestServiceImp】【sendCode】 未找到短信模板 type = auto_early_warn ");
         return false;
+    }
+
+
+    @Override
+    public Integer selectByTripId(Long tripId) {
+        return tbSmsMapper.selectByTripId( tripId );
     }
 }
