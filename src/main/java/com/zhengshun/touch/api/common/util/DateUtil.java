@@ -40,7 +40,10 @@ public class DateUtil extends tool.util.DateUtil{
 		}
 		return 0;
 	}
-    
+    public static void main(String[] args) {
+//    	System.out.println( DateUtil.get);
+    	System.out.println(minuteBetween(DateUtil.parse("2018-09-03 23:10:41","yyyy-MM-dd HH:mm:ss"),DateUtil.parse("2018-09-03 23:17:41","yyyy-MM-dd HH:mm:ss")));
+	}
 	/**
 	 * 获取指定时间天的开始时间
 	 * 

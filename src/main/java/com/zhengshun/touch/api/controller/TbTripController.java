@@ -83,17 +83,14 @@ public class TbTripController extends BaseController {
             TbTrip tbTrip = tbTripService.getLastTrip(tbUser.getId());
             if ( tbTrip != null ) {
                 tbTrip.setRemainMinutes(DateUtil.minuteBetween(new Date(), tbTrip.getEstimateDate()));
-                Map<String, Object> retMap = new HashMap<>();
-
-                retMap.put(Constant.RESPONSE_DATA, tbTrip);
-                retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
-                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
-                logger.info("【/api/user/getTrip.htm】【outputs】 " + ConvertUtils.convert(retMap));
-                ServletUtils.writeToResponse(response, retMap);
-            } else {
-                logger.info("【/api/user/getTrip.htm】【outputs】 ");
-                ServletUtils.writeToResponse(response, BaseResponse.fail("未找到行程"));
             }
+            Map<String, Object> retMap = new HashMap<>();
+
+            retMap.put(Constant.RESPONSE_DATA, tbTrip);
+            retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            logger.info("【/api/user/getTrip.htm】【outputs】 " + ConvertUtils.convert(retMap));
+            ServletUtils.writeToResponse(response, retMap);
         } else {
             logger.info("【/api/user/getTrip.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());
@@ -118,7 +115,7 @@ public class TbTripController extends BaseController {
             logger.info("【/api/user/trip/updateStatus.htm】 【inputs】  id = " + id +
                     ", scheduleStatus = " + scheduleStatus);
             TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
-            if ( tbTrip != null && DateUtil.minutesBetween(tbTrip.getCreateDate(), new Date()) > Global.getInt("trip_minutes")) {
+            if ( tbTrip != null && DateUtil.minutesBetween(tbTrip.getCreateDate(), new Date()) >= Global.getInt("trip_minutes")) {
                 if (tbTripService.updateStatus(id, scheduleStatus, gbs)) {
                     logger.info("【/api/user/trip/updateStatus.htm】【outputs】 操作成功");
                     ServletUtils.writeToResponse(response, BaseResponse.success());

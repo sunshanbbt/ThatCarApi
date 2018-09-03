@@ -85,16 +85,23 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
             return true;
         }
         if ( PasswordUtil.verify( pwd, tbUser.getRiskPwd())) {
+
                 // 查询用户的紧急联系人
                 TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
-                if ( tbTrip != null ) {
-                    List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser( tbUser.getId() );
-                    for ( TbEmerContact tbEmerContact : emerContactList ) {
-                        Boolean falg = tbSmsService.sendAutoEarlyWarn( tbEmerContact.getPhone(), tbUser.getRealName
-                                (), tbTrip.getTaxiApp(), tbTrip.getPlateNo() );
+                Integer count = tbSmsService.selectByTripId( tbTrip.getId() );
+                if ( count > 0 ) {
+                    logger.info("【QuartzEarlyWarn】【earlyWarn】 该用户已发过预警 userId = " + tbTrip.getUserId() + "， tripId = " + tbTrip.getId());
+                    return true;
+                } else {
+                    if (tbTrip != null) {
+                        List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser(tbUser.getId());
+                        for (TbEmerContact tbEmerContact : emerContactList) {
+                            Boolean falg = tbSmsService.sendAutoEarlyWarn(tbEmerContact.getPhone(), tbUser.getRealName
+                                    (), tbTrip.getTaxiApp(), tbTrip.getPlateNo());
 //                        if (falg) {
 ////                            tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
 ////                        }
+                        }
                     }
                 }
             return true;

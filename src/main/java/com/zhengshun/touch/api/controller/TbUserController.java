@@ -72,8 +72,8 @@ public class TbUserController extends BaseController {
     @RequestMapping( value = "/api/user/update/info.htm" )
     public void updateInfo (
             @RequestParam( value = "wxNo", required = false) String wxNo,
-            @RequestParam( value = "realName") String realName,
-            @RequestParam( value = "phone") String phone)
+            @RequestParam( value = "realName", required = false) String realName,
+            @RequestParam( value = "phone", required = false) String phone)
             throws Exception {
         logger.info( "【/api/user/update/saveUserName.htm】【inputs】 wxNo = " + wxNo + ", realName = " + realName + ", " +
                 "phone = " + phone);
