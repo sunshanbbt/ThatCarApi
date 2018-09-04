@@ -1,11 +1,16 @@
 package com.zhengshun.touch.api.controller;
 
 import com.zhengshun.touch.api.common.BaseResponse;
+import com.zhengshun.touch.api.common.MsgUtils;
+import com.zhengshun.touch.api.common.context.Constant;
+import com.zhengshun.touch.api.common.util.DateUtil;
 import com.zhengshun.touch.api.common.util.PasswordUtil;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.web.controller.BaseController;
+import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.service.TbUserService;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -13,6 +18,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Controller
 public class TbUserController extends BaseController {
@@ -91,6 +99,34 @@ public class TbUserController extends BaseController {
             ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
 
+
+    }
+
+
+    /**
+     * 获取用户信息
+     * @throws Exception
+     */
+    @RequestMapping( value = "/api/user/get.htm" )
+    public void get ()throws Exception {
+        logger.info("【/api/user/get.htm】 【inputs】");
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("wxNo", tbUser.getWxNo());
+            params.put("realName", tbUser.getRealName());
+            params.put("phone", tbUser.getPhone());
+            Map<String, Object> retMap = new HashMap<>();
+
+            retMap.put(Constant.RESPONSE_DATA, params);
+            retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            logger.info("【/api/user/get.htm】【outputs】 " + ConvertUtils.convert(retMap));
+            ServletUtils.writeToResponse(response, retMap);
+        } else {
+            logger.info("【/api/user/get.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
+        }
 
     }
 
