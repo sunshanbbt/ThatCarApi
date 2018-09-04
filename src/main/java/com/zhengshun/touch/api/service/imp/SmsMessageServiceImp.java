@@ -21,15 +21,15 @@ public class SmsMessageServiceImp implements SmsMessageService {
                                     String channel) {
 
         if ( channel.equals("10") ) { // 阿里云短信
-            return aliSmsRequestService.sendShortMessage(phone, content, code, messageTemplet, type );
+            return aliSmsRequestService.sendShortMessage(phone, content, code, messageTemplet, type);
         }
         return false;
     }
 
     @Override
-    public Boolean sendShortMessage(String phone, String content, String messageTemplet, String type, String channel) {
+    public Boolean sendShortMessage(String phone, String content, String messageTemplet, String type, String channel, Long tripId) {
         if ( channel.equals("10") ) { // 阿里云短信
-            return aliSmsRequestService.sendShortMessage(phone, content, messageTemplet, type );
+            return aliSmsRequestService.sendShortMessage(phone, content, messageTemplet, type , tripId);
         }
         return false;
     }

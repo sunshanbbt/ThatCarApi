@@ -76,7 +76,7 @@ public class TbSmsServiceImp implements TbSmsService {
     }
 
     @Override
-    public Boolean sendOverTimeEarlyWarn(String phone, String name, String plateNo, String taxiApp) {
+    public Boolean sendOverTimeEarlyWarn(String phone, String name, String plateNo, String taxiApp, Long tripId) {
         Map<String, Object> params = new HashMap<>();
         params.put("type", "overtime_early_warn");
         TbSmsTpl tbSmsTpl = tbSmsTplMapper.findSelective( params );
@@ -85,7 +85,7 @@ public class TbSmsServiceImp implements TbSmsService {
             String messageChannl = Global.getValue("sms_passageway");
             String content = "{\"name\":\"" + name + "\", \"taxiApp\":\"" + taxiApp + "\" , \"plateNo\":\"" + plateNo+ "\" }";
             return smsMessageService.sendShortMessage(phone, content, tbSmsTpl.getNumber(), "overtime_early_warn" ,
-                    messageChannl);
+                    messageChannl, tripId);
         }
         logger.info("【AliSmsRequestServiceImp】【sendCode】 未找到短信模板 type = overtime_early_warn ");
         return false;
@@ -93,7 +93,7 @@ public class TbSmsServiceImp implements TbSmsService {
 
 
     @Override
-    public Boolean sendAutoEarlyWarn(String phone, String name, String plateNo, String taxiApp) {
+    public Boolean sendAutoEarlyWarn(String phone, String name, String plateNo, String taxiApp, Long tripId) {
         Map<String, Object> params = new HashMap<>();
         params.put("type", "auto_early_warn");
         TbSmsTpl tbSmsTpl = tbSmsTplMapper.findSelective( params );
@@ -101,7 +101,7 @@ public class TbSmsServiceImp implements TbSmsService {
             String messageChannl = Global.getValue("sms_passageway");
             String content = "{\"name\":\"" + name + "\", \"taxiApp\":\"" + taxiApp + "\" , \"plateNo\":\"" + plateNo+ "\" }";
             return smsMessageService.sendShortMessage(phone, content, tbSmsTpl.getNumber(), "auto_early_warn" ,
-                    messageChannl);
+                    messageChannl, tripId);
         }
         logger.info("【AliSmsRequestServiceImp】【sendCode】 未找到短信模板 type = auto_early_warn ");
         return false;

@@ -57,7 +57,7 @@ public class QuartzEarlyWarn implements Job {
 					List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser( tbTrip.getUserId() );
 					for ( TbEmerContact tbEmerContact : emerContactList ) {
 						Boolean falg = tbSmsService.sendOverTimeEarlyWarn( tbEmerContact.getPhone(), tbUser.getRealName
-								(), tbTrip.getTaxiApp(), tbTrip.getPlateNo() );
+								(), tbTrip.getTaxiApp(), tbTrip.getPlateNo() , tbTrip.getId());
 						if (falg) {
 							tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code ,"0000000");
 							succeed++;

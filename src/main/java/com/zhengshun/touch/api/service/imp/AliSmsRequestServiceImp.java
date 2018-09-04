@@ -90,7 +90,7 @@ public class AliSmsRequestServiceImp implements AliSmsRequestService {
 
 
     @Override
-    public Boolean sendShortMessage(String phone, String content , String messageTempletCode, String type) {
+    public Boolean sendShortMessage(String phone, String content , String messageTempletCode, String type, Long tripId) {
         logger.info("【AliSmsRequestServiceImp】【sendShortMessage】 begin ...");
         try {
             String domain = Global.getValue("ali_sms_domain");
@@ -101,6 +101,7 @@ public class AliSmsRequestServiceImp implements AliSmsRequestService {
 
             String orderNo = NidGenerator.getOrderNo();
             TbSms tbSms = new TbSms(phone, DateUtil.getNow(), content, "10", type, "10");
+            tbSms.setTripId( tripId );
             //初始化acsClient,暂不支持region化
             IClientProfile profile = DefaultProfile.getProfile("cn-hangzhou", accessKey, accessSecret);
             DefaultProfile.addEndpoint("cn-hangzhou", "cn-hangzhou", product, domain);

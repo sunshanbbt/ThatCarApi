@@ -7,9 +7,11 @@ import com.zhengshun.touch.api.common.context.Global;
 import com.zhengshun.touch.api.common.util.DateUtil;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.web.controller.BaseController;
+import com.zhengshun.touch.api.domain.TbEmerContact;
 import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.service.TbTripService;
+import com.zhengshun.touch.api.service.TbUserEmerContactService;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Controller
@@ -30,6 +33,8 @@ public class TbTripController extends BaseController {
 
     @Resource
     private TbTripService tbTripService;
+    @Resource
+    private TbUserEmerContactService tbUserEmerContactService;
 
     /**
      * 保存行程信息
@@ -49,20 +54,30 @@ public class TbTripController extends BaseController {
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
             logger.info( "【/api/user/saveTrip.htm】【inputs】 estimateDate = " + estimateDate + ", plateNo = " + plateNo + ", taxiApp = " + taxiApp + "， userId = " + tbUser.getId());
-            Integer count = tbTripService.getTripCount( tbUser.getId() );
-            if ( count < Global.getInt("trip_count")) {
-                Date estimate = DateUtil.dateAddMins(new Date(), estimateDate);
-                if (tbTripService.saveTrip(request, estimate, plateNo, taxiApp, tbUser.getId(), gbs)) {
-                    logger.info("【/api/user/saveTrip.htm】【outputs】 操作成功");
-                    ServletUtils.writeToResponse(response, BaseResponse.success());
-                } else {
-                    logger.info("【/api/user/saveTrip.htm】【outputs】 操作失败");
-                    ServletUtils.writeToResponse(response, BaseResponse.fail());
-                }
+            List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser( tbUser.getId() );
+            if ( emerContactList == null || emerContactList.size() == 0 ) {
+                logger.info("【/api/user/saveTrip.htm】【outputs】 请设置紧急联系人");
+                ServletUtils.writeToResponse(response, BaseResponse.fail("请先设置紧急联系人", 401));
+            } else if ( tbUser.getRealName() == null || tbUser.getRealName().equals("")) {
+                logger.info("【/api/user/saveTrip.htm】【outputs】 请设置称呼");
+                ServletUtils.writeToResponse(response, BaseResponse.fail("请先设置称呼", 402));
             } else {
-                logger.info("【/api/user/saveTrip.htm】【outputs】 用户行程已达上限");
-                ServletUtils.writeToResponse(response, BaseResponse.fail("用户行程已达上限"));
+                Integer count = tbTripService.getTripCount( tbUser.getId() );
+                if ( count < Global.getInt("trip_count")) {
+                    Date estimate = DateUtil.dateAddMins(new Date(), estimateDate);
+                    if (tbTripService.saveTrip(request, estimate, plateNo, taxiApp, tbUser.getId(), gbs)) {
+                        logger.info("【/api/user/saveTrip.htm】【outputs】 操作成功");
+                        ServletUtils.writeToResponse(response, BaseResponse.success());
+                    } else {
+                        logger.info("【/api/user/saveTrip.htm】【outputs】 操作失败");
+                        ServletUtils.writeToResponse(response, BaseResponse.fail());
+                    }
+                } else {
+                    logger.info("【/api/user/saveTrip.htm】【outputs】 用户行程已达上限");
+                    ServletUtils.writeToResponse(response, BaseResponse.fail("用户行程已达上限"));
+                }
             }
+
         } else {
             logger.info("【/api/user/saveTrip.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());

@@ -39,6 +39,10 @@ public class BaseResponse extends BaseObject {
         return new BaseResponse( null, Constant.FAIL_CODE_VALUE, msg );
     }
 
+    public static BaseResponse fail( String msg, Integer code ) {
+        return new BaseResponse(null, code, msg);
+    }
+
     public static BaseResponse fail( String msg, Map<String, Object> data ) {
         return new BaseResponse( data, Constant.FAIL_CODE_VALUE, msg );
     }

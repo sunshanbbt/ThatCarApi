@@ -24,7 +24,7 @@ public interface TbSmsService {
      * @param phone
      * @return
      */
-    Boolean sendOverTimeEarlyWarn(String phone, String name, String plateNo, String taxiApp);
+    Boolean sendOverTimeEarlyWarn(String phone, String name, String plateNo, String taxiApp, Long tripId);
 
     /**
      * 发送自主预警短信
@@ -34,7 +34,7 @@ public interface TbSmsService {
      * @param taxiApp
      * @return
      */
-    Boolean sendAutoEarlyWarn(String phone, String name, String plateNo, String taxiApp);
+    Boolean sendAutoEarlyWarn(String phone, String name, String plateNo, String taxiApp, Long tripId);
 
     Integer selectByTripId(Long tripId);
 }

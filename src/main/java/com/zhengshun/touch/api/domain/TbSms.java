@@ -14,6 +14,8 @@ public class TbSms implements Serializable{
 
     private Long id;
 
+    private Long tripId;
+
     private String phone;
 
     private Date sendTime;
@@ -35,6 +37,14 @@ public class TbSms implements Serializable{
     private String state;
 
     private Integer verifyTime;
+
+    public Long getTripId() {
+        return tripId;
+    }
+
+    public void setTripId(Long tripId) {
+        this.tripId = tripId;
+    }
 
     public TbSms(String phone, Date sendTime, String content, String code, String state, String smsType, String platform) {
         this.phone = phone;

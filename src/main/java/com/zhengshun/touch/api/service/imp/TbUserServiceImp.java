@@ -97,7 +97,7 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
                         List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser(tbUser.getId());
                         for (TbEmerContact tbEmerContact : emerContactList) {
                             Boolean falg = tbSmsService.sendAutoEarlyWarn(tbEmerContact.getPhone(), tbUser.getRealName
-                                    (), tbTrip.getTaxiApp(), tbTrip.getPlateNo());
+                                    (), tbTrip.getTaxiApp(), tbTrip.getPlateNo(), tbTrip.getId());
 //                        if (falg) {
 ////                            tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
 ////                        }
