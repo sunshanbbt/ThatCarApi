@@ -103,6 +103,8 @@ public class TbUser implements Serializable{
 
     private String realName;
 
+    private String salt;
+
     public Long getId() {
         return id;
     }
@@ -269,5 +271,13 @@ public class TbUser implements Serializable{
 
     public void setRealName(String realName) {
         this.realName = realName;
+    }
+
+    public String getSalt() {
+        return salt;
+    }
+
+    public void setSalt(String salt) {
+        this.salt = salt;
     }
 }

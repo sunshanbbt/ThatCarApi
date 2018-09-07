@@ -21,22 +21,22 @@ public class TbSmsController extends BaseController {
     @Resource
     private TbSmsService tbSmsService;
 
-    @RequestMapping( value = "/api/sms/getCode.htm" )
-    public void getCode (
-            @RequestParam( value = "phone") String phone)
-            throws Exception {
-        logger.info( "【/api/sms/getCode.htm】【inputs】 phone = " + phone );
-
-        if (tbSmsService.sendCode(phone, "code")){
-            logger.info("【/api/sms/getCode.htm】【outputs】 操作成功");
-            ServletUtils.writeToResponse(response, BaseResponse.success());
-        } else {
-            logger.info("【/api/sms/getCode.htm】【outputs】 操作失败");
-            ServletUtils.writeToResponse( response, BaseResponse.fail() );
-        }
-
-
-    }
+//    @RequestMapping( value = "/api/sms/getCode.htm" )
+//    public void getCode (
+//            @RequestParam( value = "phone") String phone)
+//            throws Exception {
+//        logger.info( "【/api/sms/getCode.htm】【inputs】 phone = " + phone );
+//
+//        if (tbSmsService.sendCode(phone, "code")){
+//            logger.info("【/api/sms/getCode.htm】【outputs】 操作成功");
+//            ServletUtils.writeToResponse(response, BaseResponse.success());
+//        } else {
+//            logger.info("【/api/sms/getCode.htm】【outputs】 操作失败");
+//            ServletUtils.writeToResponse( response, BaseResponse.fail() );
+//        }
+//
+//
+//    }
 
 
 }

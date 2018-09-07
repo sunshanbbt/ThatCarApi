@@ -11,11 +11,11 @@ public interface TbUserService extends BaseService<TbUser, Long> {
     Boolean saveUser(HttpServletRequest request, String avatarUrl, String city, String country, Integer gender, String
             language, String nickName, Long userId, String province );
 
-    Boolean updateUnlockPwd(HttpServletRequest request, String unlockPwd, Long userId);
+    Map<String, Object> updateUnlockPwd(TbUser tbUser, String unlockPwd);
 
-    Boolean updateRiskPwd(HttpServletRequest request, String riskPwd, Long userId);
+    Map<String, Object> updateRiskPwd(TbUser tbUser, String riskPwd);
 
-    Boolean verifyPwd(String unlockPwd, TbUser tbUser);
+    Map<String, Object> verifyPwd(TbUser tbUser,String unlockPwd );
 
     Boolean updateInfo(String wxNo,String realName, String phone, Long userId);
 

@@ -3,14 +3,11 @@ package com.zhengshun.touch.api.controller;
 import com.zhengshun.touch.api.common.BaseResponse;
 import com.zhengshun.touch.api.common.MsgUtils;
 import com.zhengshun.touch.api.common.context.Constant;
-import com.zhengshun.touch.api.common.util.DateUtil;
-import com.zhengshun.touch.api.common.util.PasswordUtil;
+import com.zhengshun.touch.api.common.util.ConvertUtils;
 import com.zhengshun.touch.api.common.util.ServletUtils;
 import com.zhengshun.touch.api.common.web.controller.BaseController;
-import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.service.TbUserService;
-import org.apache.commons.beanutils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -18,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.annotation.Resource;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -121,7 +117,7 @@ public class TbUserController extends BaseController {
             retMap.put(Constant.RESPONSE_DATA, params);
             retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
             retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
-            logger.info("【/api/user/get.htm】【outputs】 " + ConvertUtils.convert(retMap));
+            logger.info("【/api/user/get.htm】【outputs】 " + ConvertUtils.convertMapToString(retMap));
             ServletUtils.writeToResponse(response, retMap);
         } else {
             logger.info("【/api/user/get.htm】【outputs】 未找到用户");
@@ -139,21 +135,13 @@ public class TbUserController extends BaseController {
     public void updateUnlockPwd (
             @RequestParam( value = "unlockPwd") String unlockPwd)
             throws Exception {
-        logger.info("【/api/user/update/unlockPwd.htm】 【inputs】 ");
+        logger.info("【/api/user/update/unlockPwd.htm】 【inputs】 unlockPwd = " + unlockPwd);
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if ( tbUser.getRiskPwd().equals( PasswordUtil.generate( unlockPwd ))) {
-                logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail("解锁密码不能和风控密码重复"));
-            } else {
-                if (tbUserService.updateUnlockPwd(request, unlockPwd, tbUser.getId())) {
-                    logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作成功");
-                    ServletUtils.writeToResponse(response, BaseResponse.success());
-                } else {
-                    logger.info("【/api/user/update/unlockPwd.htm】【outputs】 操作失败");
-                    ServletUtils.writeToResponse(response, BaseResponse.fail());
-                }
-            }
+            Map<String, Object> retMap = tbUserService.updateUnlockPwd( tbUser, unlockPwd );
+            logger.info("【/api/user/update/unlockPwd.htm】【outputs】 " + ConvertUtils.convertMapToString(retMap));
+            ServletUtils.writeToResponse(response, retMap);
+
         } else {
             logger.info("【/api/user/update/unlockPwd.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());
@@ -171,21 +159,16 @@ public class TbUserController extends BaseController {
     public void verifyUnlockPwd (
             @RequestParam( value = "pwd") String pwd)
             throws Exception {
-        logger.info("【/api/user/verify/pwd.htm】 【inputs】 ");
+        logger.info("【/api/user/verify/pwd.htm】 【inputs】 pwd = " + pwd);
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if (tbUserService.verifyPwd(pwd, tbUser )) {
-                logger.info("【/api/user/verify/pwd.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
-            } else {
-                logger.info("【/api/user/verify/pwd.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail());
-            }
+            Map<String, Object> retMap = tbUserService.verifyPwd( tbUser, pwd );
+            logger.info("【/api/user/verify/pwd.htm】【outputs】 " + ConvertUtils.convertMapToString(retMap));
+            ServletUtils.writeToResponse(response, retMap);
         } else {
             logger.info("【/api/user/verify/pwd.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
-
 
     }
 
@@ -198,26 +181,16 @@ public class TbUserController extends BaseController {
     public void updateRickPwd (
             @RequestParam( value = "riskPwd") String riskPwd)
             throws Exception {
-        logger.info("【/api/user/update/riskPwd.htm】 【inputs】 ");
+        logger.info("【/api/user/update/riskPwd.htm】 【inputs】 riskPwd = " + riskPwd);
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if ( tbUser.getUnlockPwd().equals(PasswordUtil.generate( riskPwd ))) {
-                logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail("风控密码不能和解锁密码重复"));
-            } else {
-                if (tbUserService.updateRiskPwd(request, riskPwd, tbUser.getId())) {
-                    logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作成功");
-                    ServletUtils.writeToResponse(response, BaseResponse.success());
-                } else {
-                    logger.info("【/api/user/update/riskPwd.htm】【outputs】 操作失败");
-                    ServletUtils.writeToResponse(response, BaseResponse.fail());
-                }
-            }
+            Map<String, Object> retMap = tbUserService.updateRiskPwd( tbUser, riskPwd );
+            logger.info("【/api/user/update/riskPwd.htm】【outputs】 " + ConvertUtils.convertMapToString(retMap));
+            ServletUtils.writeToResponse(response, retMap);
         } else {
             logger.info("【/api/user/update/riskPwd.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
-
     }
 
 

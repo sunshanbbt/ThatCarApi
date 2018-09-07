@@ -50,9 +50,13 @@ public class Constant {
 
 	public static final int FAIL_CODE_VALUE = 400; // 失败 插入 、删除 更新 修改
 	
-	public static final int FAIL_CODE_PWD = 401; // 交易密码错误
+	public static final int FAIL_CODE_CONTACT = 401; // 紧急联系人
+
+	public static final int FAIL_CODE_NAME = 402; // 称呼
 	
-	public static final int PERM_CODE_VALUE = 403; // 无权限访问
+	public static final int FAIL_CODE_UNLOCK= 403; // 解锁密码
+
+	public static final int FAIL_CODE_RISK= 405; // 风控密码
 
 	public static final int OTHER_CODE_VALUE = 500; // 其他异常
 	

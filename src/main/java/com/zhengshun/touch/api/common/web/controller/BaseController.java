@@ -283,19 +283,7 @@ public abstract class BaseController extends AbstractController {
 		return false;
 	}
 	
-	/**
-	 * shiro 异常处理
-	 * @param e
-	 * @param response
-	 */
-	@ExceptionHandler({AuthorizationException.class})
-	public void authorizationExceptionHandler(AuthorizationException e, HttpServletResponse response) {
-		Map<String, Object> res = new HashMap<String, Object>();
-		res.put(Constant.RESPONSE_CODE, Constant.PERM_CODE_VALUE);
-		res.put(Constant.RESPONSE_CODE_MSG, "对不起，您没有该权限");
-		ServletUtils.writeToResponse(response, res);
-	}
-	
+
 	
 	@ExceptionHandler({Exception.class})
 	public void exceptionHandler(Exception e, HttpServletResponse response) {

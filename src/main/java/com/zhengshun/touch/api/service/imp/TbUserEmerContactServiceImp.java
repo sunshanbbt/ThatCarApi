@@ -4,11 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.zhengshun.touch.api.common.mapper.BaseMapper;
 import com.zhengshun.touch.api.common.service.impl.BaseServiceImpl;
 import com.zhengshun.touch.api.domain.TbEmerContact;
-import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.mapper.TbEmerContactMapper;
-import com.zhengshun.touch.api.mapper.TbUserMapper;
 import com.zhengshun.touch.api.service.TbUserEmerContactService;
-import com.zhengshun.touch.api.service.TbUserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +22,6 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
     public static final Logger logger = LoggerFactory.getLogger(TbUserEmerContactServiceImp.class);
     @Autowired
     private TbEmerContactMapper tbEmerContactMapper;
-    @Autowired
-    private TbUserService tbUserService;
 
 
     @Override

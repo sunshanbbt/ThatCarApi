@@ -11,7 +11,7 @@ public interface TbUserMapper extends BaseMapper<TbUser, Long> {
 
     int insert(TbUser tbUser);
 
-    int updateUnlockPwd(@Param("id") Long id, @Param("unlockPwd") String unlockPwd );
+    int updateUnlockPwd(@Param("id") Long id, @Param("unlockPwd") String unlockPwd, @Param("salt") String salt );
 
-    int updateRiskPwd(@Param("id") Long id, @Param("riskPwd") String riskPwd );
+    int updateRiskPwd(@Param("id") Long id, @Param("riskPwd") String riskPwd, @Param("salt") String salt );
 }

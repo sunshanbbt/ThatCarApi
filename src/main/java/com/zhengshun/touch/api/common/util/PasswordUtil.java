@@ -9,7 +9,22 @@ public class PasswordUtil {
         /**
          * 生成含有随机盐的密码
          */
-        public static String generate(String password) {
+        public static String generate(String password, String salt) {
+            password = md5Hex(password + salt);
+            char[] cs = new char[48];
+            for (int i = 0; i < 48; i += 3) {
+                cs[i] = password.charAt(i / 3 * 2);
+                char c = salt.charAt(i / 3);
+                cs[i + 1] = c;
+                cs[i + 2] = password.charAt(i / 3 * 2 + 1);
+            }
+            return new String(cs);
+        }
+
+        public static void main(String[] args) {
+            System.out.println( generate("999999", "1265119786935722" ));
+        }
+        public static String salt() {
             Random r = new Random();
             StringBuilder sb = new StringBuilder(16);
             sb.append(r.nextInt(99999999)).append(r.nextInt(99999999));
@@ -20,15 +35,7 @@ public class PasswordUtil {
                 }
             }
             String salt = sb.toString();
-            password = md5Hex(password + salt);
-            char[] cs = new char[48];
-            for (int i = 0; i < 48; i += 3) {
-                cs[i] = password.charAt(i / 3 * 2);
-                char c = salt.charAt(i / 3);
-                cs[i + 1] = c;
-                cs[i + 2] = password.charAt(i / 3 * 2 + 1);
-            }
-            return new String(cs);
+            return salt;
         }
 
         /**
@@ -57,12 +64,6 @@ public class PasswordUtil {
             } catch (Exception e) {
                 return null;
             }
-        }
-
-        public static void main(String[] args) {
-            String password = generate("admin");
-            System.out.println( password);
-            System.out.println(verify("admin", password));
         }
 
     }

@@ -74,7 +74,7 @@ public class TbEmerContactController extends BaseController {
             retMap.put(Constant.RESPONSE_DATA, tbEmerContacts);
             retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
             retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
-            logger.info("【/api/user/emer/get.htm】【outputs】 " + ConvertUtils.convert(retMap));
+            logger.info("【/api/user/emer/get.htm】【outputs】 " + com.zhengshun.touch.api.common.util.ConvertUtils.convertMapToString(retMap));
             ServletUtils.writeToResponse(response, retMap);
         } else {
             logger.info("【/api/user/emer/get.htm】【outputs】 未找到用户");

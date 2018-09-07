@@ -2,6 +2,7 @@ package com.zhengshun.touch.api.service;
 
 import com.zhengshun.touch.api.common.service.BaseService;
 import com.zhengshun.touch.api.domain.TbTrip;
+import com.zhengshun.touch.api.domain.TbUser;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -10,8 +11,7 @@ import java.util.Map;
 
 public interface TbTripService extends BaseService<TbTrip, Long> {
 
-    Boolean saveTrip(HttpServletRequest request, Date estimateDate, String plateNo, String taxiApp,Long userId, String gbs);
-
+    Map<String, Object> saveTrip(TbUser tbUser, Date estimateDate, String plateNo, String taxiApp,String gbs);
 
     Boolean updateTrip( Long id, Date estimateDate, String gbs);
 

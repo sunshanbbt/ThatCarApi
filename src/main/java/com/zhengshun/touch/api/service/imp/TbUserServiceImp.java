@@ -1,6 +1,8 @@
 package com.zhengshun.touch.api.service.imp;
 
+import com.zhengshun.touch.api.common.MsgUtils;
 import com.zhengshun.touch.api.common.constans.TripScheduleStatusEnum;
+import com.zhengshun.touch.api.common.context.Constant;
 import com.zhengshun.touch.api.common.mapper.BaseMapper;
 import com.zhengshun.touch.api.common.service.impl.BaseServiceImpl;
 import com.zhengshun.touch.api.common.util.PasswordUtil;
@@ -16,6 +18,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tool.util.StringUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.*;
@@ -62,51 +65,83 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
 
 
     @Override
-    public Boolean updateUnlockPwd(HttpServletRequest request, String unlockPwd,Long userId) {
-        int res = tbUserMapper.updateUnlockPwd( userId, PasswordUtil.generate(unlockPwd) );
-        if ( res > 0 ){
-            return true;
+    public Map<String, Object> updateUnlockPwd(TbUser tbUser, String unlockPwd) {
+        Map<String, Object> retMap = new HashMap<>();
+        String salt = tbUser.getSalt();
+        logger.info(" tbuser salt = " + salt);
+        if (StringUtil.isBlank( salt )) {
+            salt = PasswordUtil.salt();
         }
-        return false;
+        logger.info(" salt = " + salt + ", unlockPwd = " + tbUser.getUnlockPwd() + " unlockPwd = " +  PasswordUtil.generate( unlockPwd, salt ));
+        if ( tbUser.getRiskPwd().equals( PasswordUtil.generate( unlockPwd, salt ))) {
+            retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.UNLOCK_PWD_REPEAT);
+        } else {
+            int res = tbUserMapper.updateUnlockPwd( tbUser.getId(), PasswordUtil.generate( unlockPwd, salt), salt );
+            if ( res > 0 ) {
+                retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            } else {
+                retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_FAIL_MSG);
+            }
+        }
+        return retMap;
     }
 
     @Override
-    public Boolean updateRiskPwd(HttpServletRequest request, String riskPwd, Long userId) {
-        int res = tbUserMapper.updateRiskPwd( userId, PasswordUtil.generate(riskPwd) );
-        if ( res > 0 ){
-            return true;
+    public Map<String, Object> updateRiskPwd(TbUser tbUser, String riskPwd) {
+        Map<String, Object> retMap = new HashMap<>();
+        String salt = tbUser.getSalt();
+        if (StringUtil.isBlank( salt )) {
+            salt = PasswordUtil.salt();
         }
-        return false;
+        logger.info(" salt = " + salt + ", unlockPwd = " + tbUser.getUnlockPwd() + " riskPwd = " +  PasswordUtil.generate( riskPwd, salt ));
+        if ( tbUser.getUnlockPwd().equals( PasswordUtil.generate( riskPwd, salt ))) {
+            retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.RISK_PWD_REPEAT);
+        } else {
+            int res = tbUserMapper.updateRiskPwd( tbUser.getId(), PasswordUtil.generate( riskPwd, salt), salt );
+            if ( res > 0 ) {
+                retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            } else {
+                retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_FAIL_MSG);
+            }
+        }
+        return retMap;
     }
 
     @Override
-    public Boolean verifyPwd(String pwd, TbUser tbUser) {
-        if ( PasswordUtil.verify( pwd , tbUser.getUnlockPwd() )) {
-            return true;
-        }
-        if ( PasswordUtil.verify( pwd, tbUser.getRiskPwd())) {
+    public Map<String, Object> verifyPwd(TbUser tbUser,String pwd) {
 
-                // 查询用户的紧急联系人
+        Map<String, Object> retMap = new HashMap<>();
+        if ( tbUser.getUnlockPwd().equals( PasswordUtil.generate(pwd, tbUser.getSalt()))) {
+            retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+        } else if ( tbUser.getRiskPwd().equals( PasswordUtil.generate(pwd, tbUser.getSalt()))) {
                 TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
-                Integer count = tbSmsService.selectByTripId( tbTrip.getId() );
-                if ( count > 0 ) {
-                    logger.info("【QuartzEarlyWarn】【earlyWarn】 该用户已发过预警 userId = " + tbTrip.getUserId() + "， tripId = " + tbTrip.getId());
-                    return true;
+                if ( tbTrip == null ) {
+                    retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+                    retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.TRIP_NOT_EXIST);
                 } else {
-                    if (tbTrip != null) {
+                    Integer count = tbSmsService.selectByTripId( tbTrip.getId() );
+                    if ( count > 0 ) {
+                        retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                        retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+                    } else {
                         List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser(tbUser.getId());
                         for (TbEmerContact tbEmerContact : emerContactList) {
                             Boolean falg = tbSmsService.sendAutoEarlyWarn(tbEmerContact.getPhone(), tbUser.getRealName
                                     (), tbTrip.getTaxiApp(), tbTrip.getPlateNo(), tbTrip.getId());
-//                        if (falg) {
-////                            tbTripService.updateStatus( tbTrip.getId(), TripScheduleStatusEnum.OVER_TIME.code );
-////                        }
                         }
+                        retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                        retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
                     }
                 }
-            return true;
         }
-        return false;
+        return retMap;
     }
 
     @Override
