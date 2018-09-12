@@ -121,31 +121,46 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
             retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
             retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
         } else if ( tbUser.getRiskPwd().equals( PasswordUtil.generate(pwd, tbUser.getSalt()))) {
-                TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
-                if ( tbTrip == null ) {
-                    retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
-                    retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.TRIP_NOT_EXIST);
-                } else {
-                    Integer count = tbSmsService.selectByTripId( tbTrip.getId() );
-                    if ( count > 0 ) {
-                        retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
-                        retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
-                    } else {
-                        List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser(tbUser.getId());
-                        for (TbEmerContact tbEmerContact : emerContactList) {
-                            Boolean falg = tbSmsService.sendAutoEarlyWarn(tbEmerContact.getPhone(), tbUser.getRealName
-                                    (), tbTrip.getTaxiApp(), tbTrip.getPlateNo(), tbTrip.getId());
-                        }
-                        retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
-                        retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
-                    }
+            retMap = this.sendSms( tbUser );
+        }
+        return retMap;
+    }
+    @Override
+    public  Map<String, Object> sendSms(TbUser tbUser){
+        Map<String, Object> retMap = new HashMap<>();
+        TbTrip tbTrip = tbTripService.getLastTrip( tbUser.getId() );
+        if ( tbTrip == null ) {
+            retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.TRIP_NOT_EXIST);
+        } else {
+            Integer count = tbSmsService.selectByTripId( tbTrip.getId() );
+            if ( count > 0 ) {
+                retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            } else {
+                List<TbEmerContact> emerContactList = tbUserEmerContactService.getListByUser(tbUser.getId());
+                for (TbEmerContact tbEmerContact : emerContactList) {
+                    Boolean falg = tbSmsService.sendAutoEarlyWarn(tbEmerContact.getPhone(), tbUser.getRealName
+                            (), tbTrip.getTaxiApp(), tbTrip.getPlateNo(), tbTrip.getId());
                 }
+                retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            }
         }
         return retMap;
     }
 
     @Override
-    public Boolean updateInfo(String wxNo, String realName, String phone, Long userId) {
+    public  Map<String, Object> updateInfo(String wxNo, String realName, String phone, Long userId) {
+        Map<String, Object> retMap = new HashMap<>();
+        if ( StringUtil.isNotBlank(phone) ) {
+            Integer count = tbUserEmerContactService.countByPhone( userId, phone);
+            if ( count > 0 ) {
+                retMap.put(Constant.RESPONSE_CODE, Constant.PHONE_IS_EXITS);
+                retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.PHONE_IS_EXITS);
+                return retMap;
+            }
+        }
         TbUser tbUser1 = new TbUser();
         tbUser1.setWxNo( wxNo );
         tbUser1.setRealName( realName );
@@ -153,9 +168,13 @@ public class TbUserServiceImp extends BaseServiceImpl<TbUser, Long> implements T
         tbUser1.setId( userId );
         int res = tbUserMapper.update( tbUser1 );
         if ( res > 0 ) {
-            return true;
+            retMap.put(Constant.RESPONSE_CODE, Constant.SUCCEED_CODE_VALUE);
+            retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_SUCCESS_MSG);
+            return retMap;
         }
-        return false;
+        retMap.put(Constant.RESPONSE_CODE, Constant.FAIL_CODE_VALUE);
+        retMap.put(Constant.RESPONSE_CODE_MSG, MsgUtils.OPERATE_FAIL_MSG);
+        return retMap;
     }
 
     @Override

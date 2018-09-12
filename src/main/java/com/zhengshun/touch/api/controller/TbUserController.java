@@ -83,13 +83,9 @@ public class TbUserController extends BaseController {
                 "phone = " + phone);
         TbUser tbUser = getUser( request );
         if ( tbUser != null ) {
-            if (tbUserService.updateInfo(wxNo, realName, phone, tbUser.getId())) {
-                logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作成功");
-                ServletUtils.writeToResponse(response, BaseResponse.success());
-            } else {
-                logger.info("【/api/user/update/saveUserName.htm】【outputs】 操作失败");
-                ServletUtils.writeToResponse(response, BaseResponse.fail());
-            }
+            Map<String, Object> retMap = tbUserService.updateInfo(wxNo, realName, phone, tbUser.getId());
+            logger.info("【/api/user/update/saveUserName.htm】【outputs】 " + ConvertUtils.convertMapToString(retMap));
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
         } else {
             logger.info("【/api/user/update/saveUserName.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());

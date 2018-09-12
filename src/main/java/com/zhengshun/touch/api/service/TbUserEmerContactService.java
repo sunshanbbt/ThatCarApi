@@ -16,5 +16,7 @@ public interface TbUserEmerContactService extends BaseService<TbEmerContact, Lon
 
     Boolean deleteEmerContact(Long id);
 
+    Integer countByPhone(Long userId, String phone);
+
 //    Boolean updateEmerContact(Long id, Integer d, String rdSessionKey);
 }

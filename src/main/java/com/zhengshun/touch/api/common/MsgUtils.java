@@ -12,5 +12,6 @@ public class MsgUtils {
     public static final String UNLOCK_NOT_NULL = "请设置解锁密码";
     public static final String RISK_NOT_NULL = "请设置风控密码";
     public static final String NAME_NOT_NULL = "请设置您的称呼";
-    public static final String CONTANS_NOT_NULL = "请设置您的称呼";
+    public static final String CONTANS_NOT_NULL = "请设置您的紧急联系人";
+    public static final String PHONE_IS_EXITS = "手机号码不能与紧急联系人重复";
 }

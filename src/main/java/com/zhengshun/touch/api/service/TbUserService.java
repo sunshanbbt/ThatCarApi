@@ -17,9 +17,11 @@ public interface TbUserService extends BaseService<TbUser, Long> {
 
     Map<String, Object> verifyPwd(TbUser tbUser,String unlockPwd );
 
-    Boolean updateInfo(String wxNo,String realName, String phone, Long userId);
+    Map<String, Object> updateInfo(String wxNo,String realName, String phone, Long userId);
 
     TbUser getUserByRdSessionKey(String rdSessionKey);
 
     TbUser getUserById( Long id );
+
+    Map<String, Object> sendSms( TbUser tbUser);
 }

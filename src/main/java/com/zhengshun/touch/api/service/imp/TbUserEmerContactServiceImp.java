@@ -75,5 +75,8 @@ public class TbUserEmerContactServiceImp extends BaseServiceImpl<TbEmerContact, 
         return false;
     }
 
-
+    @Override
+    public Integer countByPhone(Long userId, String phone) {
+        return tbEmerContactMapper.countByPhone(userId, phone);
+    }
 }

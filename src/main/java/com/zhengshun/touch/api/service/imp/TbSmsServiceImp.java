@@ -1,10 +1,14 @@
 package com.zhengshun.touch.api.service.imp;
 
+import com.zhengshun.touch.api.common.MsgUtils;
+import com.zhengshun.touch.api.common.context.Constant;
 import com.zhengshun.touch.api.common.context.Global;
 import com.zhengshun.touch.api.common.util.DateUtils;
 import com.zhengshun.touch.api.common.util.StringUtil;
+import com.zhengshun.touch.api.domain.TbEmerContact;
 import com.zhengshun.touch.api.domain.TbSms;
 import com.zhengshun.touch.api.domain.TbSmsTpl;
+import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.mapper.TbSmsMapper;
 import com.zhengshun.touch.api.mapper.TbSmsTplMapper;
 import com.zhengshun.touch.api.service.SmsMessageService;
@@ -16,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service("tbSmsService")
@@ -94,6 +99,9 @@ public class TbSmsServiceImp implements TbSmsService {
 
     @Override
     public Boolean sendAutoEarlyWarn(String phone, String name, String plateNo, String taxiApp, Long tripId) {
+
+
+
         Map<String, Object> params = new HashMap<>();
         params.put("type", "auto_early_warn");
         TbSmsTpl tbSmsTpl = tbSmsTplMapper.findSelective( params );

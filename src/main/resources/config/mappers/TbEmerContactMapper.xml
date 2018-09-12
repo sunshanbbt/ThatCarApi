@@ -109,4 +109,7 @@
     <delete id="deleteById">
         DELETE FROM tb_user_emer_contact WHERE id = #{id, jdbcType=BIGINT}
     </delete>
+    <select id="countByPhone" resultType="java.lang.Integer">
+        select count(1) from tb_user_emer_contact where user_id = #{userId, jdbcType=BIGINT} and phone = #{phone,jdbcType=VARCHAR}
+    </select>
 </mapper>

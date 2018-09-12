@@ -58,6 +58,8 @@ public class Constant {
 
 	public static final int FAIL_CODE_RISK= 405; // 风控密码
 
+	public static final int PHONE_IS_EXITS= 406; // 风控密码
+
 	public static final int OTHER_CODE_VALUE = 500; // 其他异常
 	
 	public static final int NOSESSION_CODE_VALUE = 800; // session失效

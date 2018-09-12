@@ -10,6 +10,7 @@ import com.zhengshun.touch.api.common.web.controller.BaseController;
 import com.zhengshun.touch.api.domain.TbTrip;
 import com.zhengshun.touch.api.domain.TbUser;
 import com.zhengshun.touch.api.service.TbTripService;
+import com.zhengshun.touch.api.service.TbUserService;
 import org.apache.commons.beanutils.ConvertUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,8 @@ public class TbTripController extends BaseController {
 
     @Resource
     private TbTripService tbTripService;
+    @Resource
+    private TbUserService tbUserService;
 
     /**
      * 保存行程信息
@@ -160,6 +163,25 @@ public class TbTripController extends BaseController {
             logger.info("【/api/user/updateTrip.htm】【outputs】 未找到用户");
             ServletUtils.writeToResponse(response, BaseResponse.fail());
         }
+    }
+
+    @RequestMapping( value = "/api/user/onekey/warn.htm" )
+    public void saveUser (
+            @RequestParam( value = "gbs", required = false) String gbs)
+            throws Exception {
+
+        TbUser tbUser = getUser( request );
+        if ( tbUser != null ) {
+            logger.info( "【/api/user/onekey/warn.htm】【inputs】 gbs = " + gbs );
+            Map<String, Object> retMap = tbUserService.sendSms( tbUser );
+            logger.info("【/api/user/onekey/warn.htm】【outputs】 " + com.zhengshun.touch.api.common.util.ConvertUtils.convertMapToString(retMap));
+            ServletUtils.writeToResponse(response, retMap);
+        } else {
+            logger.info("【/api/user/onekey/warn.htm】【outputs】 未找到用户");
+            ServletUtils.writeToResponse(response, BaseResponse.fail());
+        }
+
+
     }
 
 }
